@@ -27,7 +27,14 @@ Configurations
 ==============
 """
 
+#This should be the only thing you have to set
+modelName = "Model2"
+
+sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
+# Bring in the path names from the configureation file
+data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir = configPaths(modelName)
+
 
 """
 =========
@@ -145,4 +152,5 @@ masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
         
 if __name__ == '__main__':
     masterpipeline.write_graph(graph2use='hierarchical')    
+#    masterpipeline.run()
     masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})

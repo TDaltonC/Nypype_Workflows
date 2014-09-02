@@ -12,8 +12,8 @@ Created on Mon Aug 11 12:42:49 2014
 Imports
 =========
 """
-#import os                                    # system functions
-
+import os                                    # system functions
+import sys
 import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.fsl as fsl          # fsl
 import nipype.interfaces.utility as util     # utility
@@ -30,8 +30,13 @@ import nipype.algorithms.rapidart as ra      # artifact detection
 Configurations
 ==============
 """
+#This should be the only thing you have to set
+modelName = "Model2"
 
+sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
+# Bring in the path names from the configureation file
+data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir = configPaths(modelName)
 
 """
 =========
@@ -443,9 +448,9 @@ datasource = pe.Node(interface=nio.DataGrabber(infields=['subject_id'],
                      name = 'datasource')
 datasource.inputs.base_directory = data_dir
 datasource.inputs.template = '*'
-datasource.inputs.field_template= dict(func=  '%s/niis/Scan%d*.nii',
-                                       struct='%s/niis/co%s*.nii',
-                                       evs=   '%s/EVfiles/RUN%d/*.txt')
+datasource.inputs.field_template= dict(func=  'RawData/%s/niis/Scan%d*.nii',
+                                       struct='RawData/%s/niis/co%s*.nii',
+                                       evs=   'Workflows/WholeBrainGLM/' + modelName + '/EVfiles/%s/RUN%d/*.txt')
 datasource.inputs.template_args = dict(func=  [['subject_id', func_scan]],
                                        struct=[['subject_id','t1mprage']],
                                        evs =  [['subject_id', func_scan]])
@@ -502,10 +507,10 @@ Execute the pipeline
 
 if __name__ == '__main__':
     # Plot a network visualization of the pipline
-#    masterpipeline.write_graph(graph2use='hierarchical')
+    masterpipeline.write_graph(graph2use='hierarchical')
 #    preproc.write_graph(graph2use='hierarchical')
 #    modelfit.write_graph(graph2use='exec')
     # Run the paipline using 1 CPUs
 #    outgraph = masterpipeline.run()    
     # Run the paipline using 8 CPUs
-    outgraph = masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})
+    outgraph = masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})
