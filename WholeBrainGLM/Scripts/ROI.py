@@ -126,6 +126,10 @@ thresholdNegative = pe.MapNode(interface=fsl.Threshold(thresh = -1.645,
                                                direction = 'above'),
                      name = 'thresholdNegative',
                      iterfield=['in_file'])
+                     
+DLPFC_ROI = pe.MapNode(interface = fsl.ApplyMask(mask_file = os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz')),
+                       name ='DLPFC_ROI',
+                       iterfield=['in_file'])
 
 '''
 ===========
@@ -148,7 +152,8 @@ masterpipeline.connect([(copemerge,flameo,[('merged_file','cope_file')]),
                         ])  
                         
 masterpipeline.connect([(flameo,thresholdPositive,[('zstats','in_file')]),
-                        (flameo,thresholdNegative,[('zstats','in_file')])])
+                        (flameo,thresholdNegative,[('zstats','in_file')]),
+                        (flameo,DLPFC_ROI,[('zstats','in_file')])])
 
 masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
                                              ('fstats','fstats'),
@@ -164,10 +169,11 @@ masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
                          (copemerge,MFXdatasink,[('merged_file','merged.cope_file')]),
                          (varcopemerge,MFXdatasink,[('merged_file','merged.varcope_file')]),
                          (thresholdPositive,MFXdatasink,[('out_file','thresholdedPositive')]),
-                         (thresholdNegative,MFXdatasink,[('out_file','thresholdedNegative')])
+                         (thresholdNegative,MFXdatasink,[('out_file','thresholdedNegative')]),
+                         (DLPFC_ROI,MFXdatasink,[('out_file','DLPFC_ROI')])
                          ])
         
 if __name__ == '__main__':
     masterpipeline.write_graph(graph2use='hierarchical')    
-#    masterpipeline.run()
-    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})
+    masterpipeline.run()
+#    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})

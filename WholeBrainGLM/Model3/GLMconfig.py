@@ -28,9 +28,6 @@ Configurations
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
 def configPaths(modelName):
-
-    # Which model should we run?
-    modelName = 'Model1'
     
     # Wthere the input data comes from
     data_dir =                os.path.abspath('../../../')
@@ -43,7 +40,7 @@ def configPaths(modelName):
     # Crash Records
     crashRecordsDir =         os.path.abspath('../' + modelName + '/WorkingDir/crashdumps')
     return data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir
-
+    
 # Templates
 mfxTemplateBrain        = '/usr/local/fsl/data/standard/MNI152_T1_2mm.nii.gz'
 strippedmfxTemplateBrain= '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
@@ -65,11 +62,10 @@ TR = 2.
 # Contrasts
 cont0 = ['Control','T', ['Control'],[1]]
 cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
-cont4 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
-cont5 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
-cont6 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
-cont7 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
-contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7]
+cont2 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
+cont3 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
+cont4 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
+cont5 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
+cont6 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
+contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6]
 

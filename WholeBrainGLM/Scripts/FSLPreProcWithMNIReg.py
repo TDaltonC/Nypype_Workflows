@@ -31,7 +31,7 @@ Configurations
 ==============
 """
 #This should be the only thing you have to set
-modelName = "Model2"
+modelName = "Model3"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -512,5 +512,5 @@ if __name__ == '__main__':
 #    modelfit.write_graph(graph2use='exec')
     # Run the paipline using 1 CPUs
 #    outgraph = masterpipeline.run()    
-    # Run the paipline using 8 CPUs
+#     Run the paipline using 8 CPUs
     outgraph = masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})

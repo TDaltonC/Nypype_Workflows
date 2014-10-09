@@ -56,7 +56,7 @@ for subjectID in subjectList:
     print subjectID
     runs =set(trialbytrial['run'])
     for run in runs:
-#       chop each of the evelt fiels acording to run
+#       chop each of the event fiels acording to run
         valueSingleRun = valueTrials[(valueTrials.run  == run)]
         difficultySingleRun = difficultyTrials[(difficultyTrials.run  == run)]
         controlSingleRun = controlTrials[(controlTrials.run  == run)] 
