@@ -57,8 +57,22 @@ for subjectID in subjectList:
 #   Add a column of ones to the dataframe (this is usefull for creating the three column files)    
     trialbytrial['ones'] = 1
     
+#   Create a new column that is the linear value of each option (SORRY THIS IS SO WET! WE WERE IN A HURRY!!!)
+#       value of item in position 1
+    trialbytrial['item1value'] = valueLookupVec(trialbytrial.item1,itemValueDF = itemvalue)
+#       value of item in position 2
+    trialbytrial['item2value'] = valueLookupVec(trialbytrial.item2,itemValueDF = itemvalue)
+#       value of item in position 3
+    trialbytrial['item3value'] = valueLookupVec(trialbytrial.item3,itemValueDF = itemvalue)
+#       value of item in position 4
+    trialbytrial['item4value'] = valueLookupVec(trialbytrial.item4,itemValueDF = itemvalue)
+#        the linear value is the sum of the measure for each of the items in a bundle
+    trialbytrial['avgTaste'] = np.mean(trialbytrial['item1value'], trialbytrial['item2value'], trialbytrial['item3value'], trialbytrial['item4value'])
+    fixedOptionTaste = valueLookup(11,itemvalue)
+    trialbytrial['linearDiff'] = abs(trialbytrial['avgTaste'] - fixedOptionTaste[11])
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
+    tasteTrials = trialbytrial[(trialbytrial.avgTaste  != 0)]
+    diffTrials = trialbytrial[(trialbytrial.avgTaste  != 0)]    
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]
@@ -66,27 +80,32 @@ for subjectID in subjectList:
     runs =set(trialbytrial['run'])
     for run in runs:
 #       chop each of the evelt fiels acording to run
-        valueSingleRun = valueTrials[(valueTrials.run  == run)]
+        tasteSingleRun = tasteTrials[(tasteTrials.run  == run)]
+        diffSingleRun = diffTrials[(diffTrials.run  == run)]
         controlSingleRun = controlTrials[(controlTrials.run  == run)] 
         scalingSingleRun = scalingTrials[(scalingTrials.run  == run)]
         bundlingSingleRun = bundlingTrials[(bundlingTrials.run  == run)]
  #      Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
+        taste3Col = tasteSingleRun[['tResponse','avgTaste']]
+        diff3Col = diffSingleRun[['tResponse','linearDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         scaling3Col = scalingSingleRun[['tResponse','ones']]
         bundling3Col = bundlingSingleRun[['tResponse','ones']]
 #       Name and open the destinations for event files
-        valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
+        tasteDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Taste.run00'+ str(run) +'.txt'))
+        diffDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/TasteDiff.run00'+ str(run) +'.txt'))
         controlDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
         scalingDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))
         BundlingDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Bundling.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
-        value3Col.to_csv(valueDir, sep ='\t', header = False)
+        taste3Col.to_csv(tasteDir, sep ='\t', header = False)
+        diff3Col.to_csv(diffDir, sep ='\t', header = False)
         control3Col.to_csv(controlDir, sep ='\t', header = False)
         scaling3Col.to_csv(scalingDir, sep ='\t', header = False)
         bundling3Col.to_csv(BundlingDir, sep ='\t', header = False)
 #       Be Tidy! Close all of those open files! 
-        valueDir.close()
+        tasteDir.close()
+        diffDir.close()
         controlDir.close()
         scalingDir.close()
         BundlingDir.close()

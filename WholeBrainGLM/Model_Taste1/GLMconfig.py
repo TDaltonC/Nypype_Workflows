@@ -61,11 +61,12 @@ TR = 2.
 
 # Contrasts
 cont0 = ['Control','T', ['Control'],[1]]
-cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
-cont3 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
-cont4 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
-cont5 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
-cont6 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[0.5,0.5,-1]]
-contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6]
+cont1 = ['Taste','T', ['Taste'],[1]]
+cont2 = ['TasteDiff','T', ['TasteDiff'],[1]]
+cont3 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
+cont4 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
+cont5 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
+cont6 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
+cont7 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
+contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7]
 

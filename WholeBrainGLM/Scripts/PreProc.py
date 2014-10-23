@@ -18,7 +18,6 @@ import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.fsl as fsl          # fsl
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
-import nipype.algorithms.modelgen as model   # model generation
 import nipype.algorithms.rapidart as ra      # artifact detection
 
 # These two lines enable debug mode
@@ -30,13 +29,37 @@ import nipype.algorithms.rapidart as ra      # artifact detection
 Configurations
 ==============
 """
-#This should be the only thing you have to set
-modelName = "Model4"
 
-sys.path.append(os.path.abspath('../' + modelName))
-from GLMconfig import *
-# Bring in the path names from the configureation file
-data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir = configPaths(modelName)
+#set output file format to compressed NIFTI.
+fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
+
+# Templates
+mfxTemplateBrain        = '/usr/local/fsl/data/standard/MNI152_T1_2mm.nii.gz'
+strippedmfxTemplateBrain= '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
+mniConfig               = '/usr/local/fsl/etc/flirtsch/T1_2_MNI152_2mm.cnf'
+mniMask                 = '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask_dil.nii.gz'
+
+
+# subject directories
+subject_list = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','SID710'] 
+
+#List of functional scans
+func_scan= [1,2,3,4,5]
+
+#ModelSettings
+input_units = 'secs'
+hpcutoff = 120
+TR = 2.
+
+# Directories
+# Wthere the input data comes from
+data_dir =      os.path.abspath('../../../')
+# Where the outputs goes
+preProcDir =    os.path.abspath('../' + 'preProc')
+# Working Directory
+workingdir =    os.path.abspath('../' + 'prePrpc' + '/WorkingDir/')
+# Crash Records
+crashRecordsDir=os.path.abspath('../' + 'prePrpc' + '/WorkingDir/crashdumps')
 
 """
 =========
@@ -306,124 +329,7 @@ preproc.connect([(inputnode, img2float,[('func', 'in_file')]),
                  (mniFNIRT,func2MNI,[('fieldcoeff_file','field_file')]),
                  (func2MNI, meanfunc4, [('out_file', 'in_file')])
                  ])
-
-"""
-======================
-model fitting workflow
-======================
-
-NODES
-"""
-#Master Node
-modelfit = pe.Workflow(name='modelfit')
-
-#generate design information
-modelspec = pe.Node(interface=model.SpecifyModel(input_units = input_units,
-                                                 time_repetition = TR,
-                                                 high_pass_filter_cutoff = hpcutoff),
-                    name="modelspec")
-
-#generate a run specific fsf file for analysis
-level1design = pe.Node(interface=fsl.Level1Design(interscan_interval = TR,
-                                                  bases = {'dgamma':{'derivs': False}},
-                                                  contrasts = contrasts,
-                                                  model_serial_correlations = True),
-                       name="level1design")
-
-#generate a run specific mat file for use by FILMGLS
-modelgen = pe.MapNode(interface=fsl.FEATModel(), name='modelgen',
-                      iterfield = ['fsf_file', 'ev_files'])
-
-#estomate Model
-modelestimate = pe.MapNode(interface=fsl.FILMGLS(smooth_autocorr=True,
-                                                 mask_size=5,
-                                                 threshold=1000),
-                                                 name='modelestimate',
-                                                 iterfield = ['design_file',
-                                                              'in_file'])
-
-#estimate contrasts
-conestimate = pe.MapNode(interface=fsl.ContrastMgr(), name='conestimate',
-                         iterfield = ['tcon_file','param_estimates',
-                                      'sigmasquareds', 'corrections',
-                                      'dof_file'])
-
-'''
-CONNECTIONS
-'''
-modelfit.connect([
-   (modelspec,level1design,[('session_info','session_info')]),
-   (level1design,modelgen,[('fsf_files', 'fsf_file'),
-                           ('ev_files', 'ev_files')]),
-   (modelgen,modelestimate,[('design_file','design_file')]),
-   (modelgen,conestimate,[('con_file','tcon_file')]),
-   (modelestimate,conestimate,[('param_estimates','param_estimates'),
-                               ('sigmasquareds', 'sigmasquareds'),
-                               ('corrections','corrections'),
-                               ('dof_file','dof_file')]),
-   ])
-
-"""
-======================
-fixed-effects workflow
-======================
-
-NODES
-"""
-# Master Node
-fixed_fx = pe.Workflow(name='fixedfx')
-
-#merge the copes and varcopes for each condition
-copemerge    = pe.MapNode(interface=fsl.Merge(dimension='t'),
-                          iterfield=['in_files'],
-                          name="copemerge")
-varcopemerge = pe.MapNode(interface=fsl.Merge(dimension='t'),
-                       iterfield=['in_files'],
-                       name="varcopemerge")
-
-#level 2 model design files (there's one for each condition of each subject)
-level2model = pe.Node(interface=fsl.L2Model(),
-                      name='l2model')
-
-#estimate a second level model
-flameo = pe.MapNode(interface=fsl.FLAMEO(run_mode='fe',
-                                         mask_file = mniMask), name="flameo",
-                    iterfield=['cope_file','var_cope_file'])
-
-'''
-Connections
-'''
-fixed_fx.connect([(copemerge,flameo,[('merged_file','cope_file')]),
-                  (varcopemerge,flameo,[('merged_file','var_cope_file')]),
-                  (level2model,flameo, [('design_mat','design_file'),
-                                        ('design_con','t_con_file'),
-                                        ('design_grp','cov_split_file')]),
-                  ])
-
-
-"""
-=======================
-Within-Subject workflow
-=======================
-
-NODES
-"""
-#Master NODE
-withinSubject = pe.Workflow(name='withinSubject')
-
-"""
-CONNECTIONS
-"""
-withinSubject.connect([(preproc, modelfit,[('func2MNI.out_file', 'modelspec.functional_runs'),
-                                           ('art.outlier_files', 'modelspec.outlier_files'),
-                                           ('func2MNI.out_file','modelestimate.in_file')]),
-                      (modelfit, fixed_fx,[(('conestimate.copes', sort_copes),'copemerge.in_files'),
-                                           (('conestimate.varcopes', sort_copes),'varcopemerge.in_files'),
-                                           (('conestimate.copes', num_copes),'l2model.num_copes'),
-                                           ]),
-
-                    ])
-                    
+                 
 """
 =============
 META workflow
@@ -444,28 +350,24 @@ infosource.iterables = ('subject_id', subject_list)
 # The datagrabber finds all of the files that need to be run and makes sure that
 # they get to the right nodes at the benining of the protocol.
 datasource = pe.Node(interface=nio.DataGrabber(infields=['subject_id'],
-                                               outfields=['func', 'struct','evs']),
+                                               outfields=['func', 'struct']),
                      name = 'datasource')
 datasource.inputs.base_directory = data_dir
 datasource.inputs.template = '*'
 datasource.inputs.field_template= dict(func=  'RawData/%s/niis/Scan%d*.nii',
-                                       struct='RawData/%s/niis/co%s*.nii',
-                                       evs=   'Workflows/WholeBrainGLM/' + modelName + '/EVfiles/%s/RUN%d/*.txt')
+                                       struct='RawData/%s/niis/co%s*.nii')
 datasource.inputs.template_args = dict(func=  [['subject_id', func_scan]],
-                                       struct=[['subject_id','t1mprage']],
-                                       evs =  [['subject_id', func_scan]])
+                                       struct=[['subject_id','t1mprage']])
 datasource.inputs.sort_filelist = True
 
 
 
 #DataSink  --- stores important outputs
-datasink = pe.Node(interface=nio.DataSink(base_directory= withinSubjectResults_dir,
+datasink = pe.Node(interface=nio.DataSink(base_directory= preProcDir,
                                           parameterization = True # This line keeps the DataSink from adding an aditional level to the directory, I have no Idea why this works.
                                           
                                           ),
                    name="datasink")
-datasink.inputs.substitutions = [('_subject_id_', ''),
-                                 ('_flameo', 'contrast')]
 
 
 """
@@ -473,9 +375,8 @@ CONNECTIONS
 """
 
 masterpipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
-                    (datasource, withinSubject, [('evs', 'modelfit.modelspec.event_files')]),
-                    (datasource, withinSubject, [('struct','preproc.inputspec.struct'),
-                                              ('func', 'preproc.inputspec.func'),
+                    (datasource, preproc, [('struct','inputspec.struct'),
+                                              ('func', 'inputspec.func'),
                                               ]),
                     (infosource, datasink, [('subject_id', 'container')])
                     ])
@@ -483,18 +384,8 @@ masterpipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')])
 #DataSink Connections -- These are put with the meta flow becuase the dataSink 
                        # reaches in to a lot of deep places, but it is not of 
                        # those places; hence META.
-withinSubject.connect([(modelfit,datasink,[('modelestimate.param_estimates','regressorEstimates')]),
-                      (modelfit,datasink,[('level1design.fsf_files', 'fsf_file')]),
-                      (fixed_fx,datasink,[('flameo.tstats','tstats'),
-                                          ('flameo.copes','copes'),
-                                          ('flameo.var_copes','varcopes')]),
-                      (preproc, datasink,[('coregister.out_matrix_file','registration.func2struct.MATRIX'),
-                                          ('mniFLIRT.out_matrix_file','registration.struct2mni.MATRIX'),
-                                          ('mniFNIRT.fieldcoeff_file','registration.struct2mni.FIELDCOEFF'),  
-                                          ('mniFNIRT.field_file','registration.struct2mni.FIELD'),
-                                          ('mniFNIRT.log_file','registration.struct2mni.log_file'),
-                                          ('mniFNIRT.warped_file','registration.struct2mni.warped_struct'),
-                                          ('func2MNI.out_file','warps.func2MNI')
+masterpipeline.connect([(preproc, datasink,[('func2MNI.out_file','func2MNI.out_file'),
+                                          ('art.outlier_files','art.outlier_files')
                                           ]),
                        ])
 
