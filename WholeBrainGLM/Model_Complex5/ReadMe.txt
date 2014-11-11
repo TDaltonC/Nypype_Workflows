@@ -14,6 +14,4 @@ Regressors
 Contrasts
 
 cont0 = ['TaskPos','T', ['TaskPos'],[1]]
-cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['ItmCount','T', ['ItmCount'],[1]]
+cont1 = ['ItmCount','T', ['ItmCount'],[1]]

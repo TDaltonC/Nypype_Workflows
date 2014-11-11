@@ -28,6 +28,9 @@ Configurations
 fsl.FSLCommand.set_default_output_type('NIFTI_GZ')
 
 def configPaths(modelName):
+
+    # # Which model should we run?
+    # modelName = 'Model6'
     
     # Wthere the input data comes from
     data_dir =                os.path.abspath('../../../')
@@ -60,9 +63,12 @@ hpcutoff = 120
 TR = 2.
 
 # Contrasts
-cont0 = ['TaskPos','T', ['TaskPos'],[1]]
-cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['ItmCount','T', ['ItmCount'],[1]]
-contrasts = [cont0,cont1,cont2,cont3]
+cont0 = ['Control','T', ['Control'],[1]]
+cont1 = ['TwoItems','T', ['TwoItems'],[1]]
+cont2 = ['ThreeItems','T', ['ThreeItems'],[1]]
+cont3 = ['FourItems','T', ['FourItems'],[1]]
+cont4 = ['TwoItems>Control','T', ['TwoItems','Control'],[1,-1]]
+cont5 = ['ThreeItems>Control','T', ['ThreeItems','Control'],[1,-1]]
+cont6 = ['FourItems>Control','T', ['FourItems','Control'],[1,-1]]
+contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6]
 

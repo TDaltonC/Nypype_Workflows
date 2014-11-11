@@ -61,8 +61,6 @@ TR = 2.
 
 # Contrasts
 cont0 = ['TaskPos','T', ['TaskPos'],[1]]
-cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['ItmCount','T', ['ItmCount'],[1]]
-contrasts = [cont0,cont1,cont2,cont3]
+cont1 = ['ItmCount','T', ['ItmCount'],[1]]
+contrasts = [cont0,cont1]
 

@@ -63,36 +63,24 @@ for subjectID in subjectList:
 #   Solve for the number of items on screen
     trialbytrial['numItmOnScrn'] = VEC_num_itm_on_screen(trialbytrial['trialType'])
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    difficultyTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
     taskPosTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
     itmCount = trialbytrial[(trialbytrial.numItmOnScrn  != 0)]
     print subjectID
     runs =set(trialbytrial['run'])
     for run in runs:
 #       chop each of the event fiels acording to run
-        valueSingleRun = valueTrials[(valueTrials.run  == run)]
-        difficultySingleRun = difficultyTrials[(difficultyTrials.run  == run)]
         taskPosSingleRun = taskPosTrials[(taskPosTrials.run  == run)] 
         itmCountRun = itmCount[(itmCount.run  == run)]
  #      Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
-        difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
         taskPos3Col = taskPosSingleRun[['tResponse','ones']]
         itmCount3Col = itmCountRun[['tResponse','numItmOnScrn']]
 #       Name and open the destinations for event files
-        valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
-        difficultyDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
         taskPosDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/TaskPos.run00'+ str(run) +'.txt'))
         itmCountDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ItmCount.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
-        value3Col.to_csv(valueDir, sep ='\t', header = False)
-        difficulty3Col.to_csv(difficultyDir, sep ='\t', header = False)
         taskPos3Col.to_csv(taskPosDir, sep ='\t', header = False)
         itmCount3Col.to_csv(itmCountDir, sep ='\t', header = False)     
 #        Be Tidy! Close all of those open files! 
-        valueDir.close()
-        difficultyDir.close()
         taskPosDir.close()
         itmCountDir.close()
 

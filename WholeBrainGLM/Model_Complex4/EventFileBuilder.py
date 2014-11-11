@@ -63,36 +63,36 @@ for subjectID in subjectList:
 #   Solve for the number of items on screen
     trialbytrial['numItmOnScrn'] = VEC_num_itm_on_screen(trialbytrial['trialType'])
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    difficultyTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    taskPosTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    itmCount = trialbytrial[(trialbytrial.numItmOnScrn  != 0)]
+    controlTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 1)]
+    twoItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 2)]
+    threeItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 3)]
+    fourItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 4)]
     print subjectID
     runs =set(trialbytrial['run'])
     for run in runs:
 #       chop each of the event fiels acording to run
-        valueSingleRun = valueTrials[(valueTrials.run  == run)]
-        difficultySingleRun = difficultyTrials[(difficultyTrials.run  == run)]
-        taskPosSingleRun = taskPosTrials[(taskPosTrials.run  == run)] 
-        itmCountRun = itmCount[(itmCount.run  == run)]
+        controlSingleRun = controlTrials[(controlTrials.run  == run)] 
+        twoItmSingeRun = twoItmTrials[(twoItmTrials.run  == run)]
+        threeItmSingeRun = threeItmTrials[(threeItmTrials.run  == run)]
+        fourItmSingeRun = fourItmTrials[(fourItmTrials.run  == run)]
  #      Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
-        difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
-        taskPos3Col = taskPosSingleRun[['tResponse','ones']]
-        itmCount3Col = itmCountRun[['tResponse','numItmOnScrn']]
+        control3Col = controlSingleRun[['tResponse','ones']]
+        twoItm3Col = twoItmSingeRun[['tResponse','ones']]
+        threeItm3Col = threeItmSingeRun[['tResponse','ones']]
+        fourItm3Col = fourItmSingeRun[['tResponse','ones']]
 #       Name and open the destinations for event files
-        valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
-        difficultyDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
-        taskPosDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/TaskPos.run00'+ str(run) +'.txt'))
-        itmCountDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ItmCount.run00'+ str(run) +'.txt'))
+        controlDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
+        twoItmDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/TwoItems.run00'+ str(run) +'.txt'))
+        threeItmDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ThreeItems.run00'+ str(run) +'.txt'))
+        fourItmDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/FourItems.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
-        value3Col.to_csv(valueDir, sep ='\t', header = False)
-        difficulty3Col.to_csv(difficultyDir, sep ='\t', header = False)
-        taskPos3Col.to_csv(taskPosDir, sep ='\t', header = False)
-        itmCount3Col.to_csv(itmCountDir, sep ='\t', header = False)     
-#        Be Tidy! Close all of those open files! 
-        valueDir.close()
-        difficultyDir.close()
-        taskPosDir.close()
-        itmCountDir.close()
+        control3Col.to_csv(controlDir, sep ='\t', header = False)
+        twoItm3Col.to_csv(twoItmDir, sep ='\t', header = False)
+        threeItm3Col.to_csv(threeItmDir, sep ='\t', header = False)
+        fourItm3Col.to_csv(fourItmDir, sep ='\t', header = False)        
+#       Be Tidy! Close all of those open files! 
+        controlDir.close()
+        twoItmDir.close()
+        threeItmDir.close()
+        fourItmDir.close()
 

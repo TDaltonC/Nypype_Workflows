@@ -57,9 +57,9 @@ data_dir =      os.path.abspath('../../../')
 # Where the outputs goes
 preProcDir =    os.path.abspath('../' + 'preProc')
 # Working Directory
-workingdir =    os.path.abspath('../' + 'prePrpc' + '/WorkingDir/')
+workingdir =    os.path.abspath('../' + 'preProc' + '/WorkingDir/')
 # Crash Records
-crashRecordsDir=os.path.abspath('../' + 'prePrpc' + '/WorkingDir/crashdumps')
+crashRecordsDir=os.path.abspath('../' + 'preProc' + '/WorkingDir/crashdumps')
 
 """
 =========

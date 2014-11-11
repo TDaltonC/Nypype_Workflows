@@ -68,7 +68,7 @@ for subjectID in subjectList:
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]
-    NumItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  != 0)]
+    itmCount = trialbytrial[(trialbytrial.numItmOnScrn  != 0)]
     print subjectID
     runs =set(trialbytrial['run'])
     for run in runs:
@@ -78,32 +78,33 @@ for subjectID in subjectList:
         controlSingleRun = controlTrials[(controlTrials.run  == run)] 
         scalingSingleRun = scalingTrials[(scalingTrials.run  == run)]
         bundlingSingleRun = bundlingTrials[(bundlingTrials.run  == run)]
-        NumItmSingeRun = NumItmTrials[(NumItmTrials.run  == run)]
- #       Cut down to only 3 columns
+        itmCountRun = itmCount[(itmCount.run  == run)]
+ #      Cut down to only 3 columns
         value3Col = valueSingleRun[['tResponse','valueOption']]
         difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         scaling3Col = scalingSingleRun[['tResponse','ones']]
         bundling3Col = bundlingSingleRun[['tResponse','ones']]
-        numItm3Col = NumItmSingeRun[['tResponse','numItmOnScrn']]
+        itmCount3Col = itmCountRun[['tResponse','numItmOnScrn']]
 #       Name and open the destinations for event files
         valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
         difficultyDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
         controlDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
         scalingDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))
         BundlingDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Bundling.run00'+ str(run) +'.txt'))
-        numItmDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ItemCount.run00'+ str(run) +'.txt'))
+        itmCountDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ItmCount.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
         value3Col.to_csv(valueDir, sep ='\t', header = False)
         difficulty3Col.to_csv(difficultyDir, sep ='\t', header = False)
         control3Col.to_csv(controlDir, sep ='\t', header = False)
         scaling3Col.to_csv(scalingDir, sep ='\t', header = False)
         bundling3Col.to_csv(BundlingDir, sep ='\t', header = False)
-        numItm3Col.to_csv(numItmDir, sep ='\t', header = False)        
+        itmCount3Col.to_csv(itmCountDir, sep ='\t', header = False)     
 #        Be Tidy! Close all of those open files! 
         valueDir.close()
         difficultyDir.close()
         controlDir.close()
         scalingDir.close()
         BundlingDir.close()
-        numItmDir.close()
+        itmCountDir.close()
+

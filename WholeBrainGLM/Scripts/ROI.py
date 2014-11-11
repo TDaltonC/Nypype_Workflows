@@ -28,7 +28,7 @@ Configurations
 """
 
 #This should be the only thing you have to set
-modelName = "Model_Complex2"
+modelName = "Model4"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -175,5 +175,5 @@ masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
         
 if __name__ == '__main__':
     masterpipeline.write_graph(graph2use='hierarchical')    
-#    masterpipeline.run()
-    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})
+    masterpipeline.run()
+#    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})
