@@ -31,7 +31,7 @@ Configurations
 ==============
 """
 #This should be the only thing you have to set
-modelName = "Model_Taste1"
+modelName = "Model1"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *

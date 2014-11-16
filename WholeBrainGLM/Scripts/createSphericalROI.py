@@ -19,8 +19,20 @@ TemplateBrain = '/usr/local/fsl/data/standard/MNI152_T1_2mm.nii.gz'
 ROIDir        = os.path.abspath('../' + 'ROIs')
 workingdir =    os.path.abspath('../' + 'ROIs' + '/WorkingDir/')
 
-ROIs = ['-add 1 -roi 45 1 74 1 51 1 0 1 ROI1',
-        '-add 1 -roi 45 1 23 1 51 1 0 1 ROIBETA']
+ROIs = []
+# left border area between angular gyrus and supramarginal gyrus from table 2 Lee(2000)
+ROIs.append('-add 1 -roi 71 1 36 1 54 1 0 1')
+
+# Right lingual Gyrus from table 2 Lee(2000)
+ROIs.append('-add 1 -roi 38 1 24 1 40 1 0 1')
+
+# Left interParietal Sulcus from table 2 Lee(2000)
+ROIs.append('-add 1 -roi 61 1 38 1 64 1 0 1')
+
+# Right interParietal Sulcus from table 2 Lee(2000)
+ROIs.append('-add 1 -roi 29 1 37 1 65 1 0 1')
+
+
 
 
 '''

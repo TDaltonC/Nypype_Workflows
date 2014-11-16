@@ -18,6 +18,6 @@ rawData = ROI.get_data()
 red1 = np.reshape(rawData,-1) 
 
 # Remove Zeros
-nonZero = red1[red1!=0]
+nonZeros = red1[red1!=0]
 
-sns.kdeplot(nonZero)
+sns.kdeplot(nonZeros)
