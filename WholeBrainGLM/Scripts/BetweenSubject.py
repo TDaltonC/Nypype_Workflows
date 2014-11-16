@@ -28,7 +28,7 @@ Configurations
 """
 
 #This should be the only thing you have to set
-modelName = "Model1"
+modelName = "Model5"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -157,18 +157,10 @@ masterpipeline.connect([(flameo,thresholdPositive,[('zstats','in_file')]),
                         (flameo,ROIs,[('zstats','in_file')])])
 
 masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
-                                             ('fstats','fstats'),
-                                             ('mrefvars','mrefvars'),
-                                             ('pes','pes'),
-                                             ('res4d','res4d'),
                                              ('tstats','tstats'),
                                              ('var_copes','var_copes'),
-                                             ('weights','weights'),
-                                             ('zfstats','zfstats'),
                                              ('zstats','zstats'),
                                              ]),
-                         (copemerge,MFXdatasink,[('merged_file','merged.cope_file')]),
-                         (varcopemerge,MFXdatasink,[('merged_file','merged.varcope_file')]),
                          (thresholdPositive,MFXdatasink,[('out_file','thresholdedPositive')]),
                          (thresholdNegative,MFXdatasink,[('out_file','thresholdedNegative')]),
                          (ROIs,MFXdatasink,[('out_file','ROIs')])

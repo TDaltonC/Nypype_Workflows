@@ -262,8 +262,8 @@ masterpipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')])
                        # reaches in to a lot of deep places, but it is not of 
                        # those places; hence META.
 withinSubject.connect([(modelfit,datasink,[('modelestimate.param_estimates','regressorEstimates')]),
-                      (modelfit,datasink,[('level1design.fsf_files', 'fsf_file')]),
-                      (fixed_fx,datasink,[('flameo.tstats','tstats'),
+                       (modelfit,datasink,[('level1design.fsf_files', 'fsf_file')]),
+                       (fixed_fx,datasink,[('flameo.tstats','tstats'),
                                           ('flameo.copes','copes'),
                                           ('flameo.var_copes','varcopes')]),
                        ])
