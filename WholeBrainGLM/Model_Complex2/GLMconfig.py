@@ -66,3 +66,9 @@ cont2 = ['Difficulty','T', ['Difficulty'],[1]]
 cont3 = ['ItmCount','T', ['ItmCount'],[1]]
 contrasts = [cont0,cont1,cont2,cont3]
 
+# ROI Masks
+ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),
+        os.path.abspath('../ROIs/lAG.nii.gz'),
+        os.path.abspath('../ROIs/lIPS.nii.gz'),
+        os.path.abspath('../ROIs/rIPS.nii.gz'),
+        os.path.abspath('../ROIs/rLingual.nii.gz')]

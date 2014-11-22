@@ -14,6 +14,8 @@ import os
 import errno
 import pandas
 import numpy as np
+
+
 """
 =========
 Functions
@@ -35,12 +37,36 @@ def safe_open_w(path):
  
 def valueLookup(itemRank,itemValueDF):
     if itemRank == 0 :
-        value = 0.
+        value = 0. 
     else:
-        value =  itemValueDF[itemValueDF.index == str(itemRank)].CSBValue
+        value = itemValueDF[itemValueDF.index == str(itemRank)].CSBValue_SingleEXT
     return value
     
-valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])
+def extValueLookup(trialType,itemValueDF):
+    if trialType == 0:
+        value = 0.
+    elif trialType == 1:
+        value = 0.
+    elif trialType == 2:
+        value = 0.
+    elif trialType == 3:
+        value = 0.
+    elif trialType == 4:
+        value = 1*(itemValueDF[itemValueDF.index == "scalingXT"].CSBValue_SingleEXT)
+    elif trialType == 5:
+        value = 2*(itemValueDF[itemValueDF.index == "scalingXT"].CSBValue_SingleEXT)
+    elif trialType == 6:
+        value = 3*(itemValueDF[itemValueDF.index == "scalingXT"].CSBValue_SingleEXT)
+    elif trialType == 7:
+        value = 1*(itemValueDF[itemValueDF.index == "bundlingXT"].CSBValue_SingleEXT)
+    elif trialType == 8:
+        value = 2*(itemValueDF[itemValueDF.index == "bundlingXT"].CSBValue_SingleEXT)
+    elif trialType == 9:
+        value = 3*(itemValueDF[itemValueDF.index == "bundlingXT"].CSBValue_SingleEXT)
+    return value
+        
+valueLookupVec    = np.vectorize(valueLookup,   excluded = ['itemValueDF'])
+extValueLookupVec = np.vectorize(extValueLookup,excluded = ['itemValueDF'])
 """
 ==============
 MEAT & POTATOS
@@ -57,18 +83,19 @@ for subjectID in subjectList:
     
 #   Create a new column that is the linear value of each option (SORRY THIS IS SO WET! WE WERE IN A HURRY!!!)
 #       value of item in position 1
-    trialbytrial['item1value'] = valueLookupVec(trialbytrial.item1,itemValueDF = itemvalue)
+    trialbytrial['item1value'] = valueLookupVec   (trialbytrial.item1,    itemValueDF = itemvalue)
 #       value of item in position 2
-    trialbytrial['item2value'] = valueLookupVec(trialbytrial.item2,itemValueDF = itemvalue)
+    trialbytrial['item2value'] = valueLookupVec   (trialbytrial.item2,    itemValueDF = itemvalue)
 #       value of item in position 3
-    trialbytrial['item3value'] = valueLookupVec(trialbytrial.item3,itemValueDF = itemvalue)
+    trialbytrial['item3value'] = valueLookupVec   (trialbytrial.item3,    itemValueDF = itemvalue)
 #       value of item in position 4
-    trialbytrial['item4value'] = valueLookupVec(trialbytrial.item4,itemValueDF = itemvalue)
-#        the linear value is the sum of the measure for each of the items in a bundle
-    trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value']
+    trialbytrial['item4value'] = valueLookupVec   (trialbytrial.item4,    itemValueDF = itemvalue)
+#        Value of extermality dumby
+    trialbytrial['ext']        = extValueLookupVec(trialbytrial.trialType,itemValueDF = itemvalue)
+#        the linear value is the sum of the measure for each of the items in a bundle and the externality
+    trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value'] + trialbytrial['ext']
     fixedOptionValue = valueLookup(11,itemvalue)
     trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
-    
 #   Fliter down to multi-run event files  
     valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
     difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]    

@@ -14,17 +14,9 @@ ROIs = []
 
 
 # Add all of the ROIs you want to plot to the ROIs list
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_5/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..lAG.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz'))
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_5/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..lIPS.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz'))
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_5/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..rIPS.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz'))
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_5/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..rLingual.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model3/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model4/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
 
-#ROIs = [
-#        lAG,
-#        lIPS,
-#        rIPS,
-#        rLingual
-#        ]
 
 for ROI in ROIs:
     

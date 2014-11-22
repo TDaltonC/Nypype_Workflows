@@ -37,9 +37,9 @@ def safe_open_w(path):
  
 def valueLookup(itemRank,itemValueDF):
     if itemRank == 0 :
-        value = 0 
+        value = 0. 
     else:
-        value = itemValueDF[itemValueDF.index == itemRank].itemMeasure
+        value = itemValueDF[itemValueDF.index == str(itemRank)].itemMeasure
     return value
     
 valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])

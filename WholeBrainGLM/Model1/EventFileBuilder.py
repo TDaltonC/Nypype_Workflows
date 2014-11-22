@@ -13,7 +13,7 @@ Imports
 import os
 import errno
 import pandas
-
+import numpy as np
 
 """
 =========
@@ -34,6 +34,14 @@ def safe_open_w(path):
     mkdir_p(os.path.dirname(path))
     return open(path, 'w')
  
+def valueLookup(itemRank,itemValueDF):
+    if itemRank == 0 :
+        value = 0. 
+    else:
+        value = itemValueDF[itemValueDF.index == str(itemRank)].CSValue
+    return value
+    
+valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])
 
 """
 ==============
@@ -45,11 +53,27 @@ subjectList = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','S
 for subjectID in subjectList:
 #   load the trial by trial data for this subject
     trialbytrial = pandas.DataFrame.from_csv(os.path.abspath('../../../RawData/'+ subjectID + '/MatLABOutput/trialByTrial.csv'))
+    itemvalue = pandas.DataFrame.from_csv(os.path.abspath('../../../RawData/'+ subjectID + '/dataFrames/itemValue.csv'))
 #   Add a column of ones to the dataframe (this is usefull for creating the three column files)    
     trialbytrial['ones'] = 1
+
+#   Create a new column that is the linear value of each option (SORRY THIS IS SO WET! WE WERE IN A HURRY!!!)
+#       value of item in position 1
+    trialbytrial['item1value'] = valueLookupVec(trialbytrial.item1,itemValueDF = itemvalue)
+#       value of item in position 2
+    trialbytrial['item2value'] = valueLookupVec(trialbytrial.item2,itemValueDF = itemvalue)
+#       value of item in position 3
+    trialbytrial['item3value'] = valueLookupVec(trialbytrial.item3,itemValueDF = itemvalue)
+#       value of item in position 4
+    trialbytrial['item4value'] = valueLookupVec(trialbytrial.item4,itemValueDF = itemvalue)
+#        the linear value is the sum of the measure for each of the items in a bundle
+    trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value']
+    fixedOptionValue = valueLookup(11,itemvalue)
+    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
+
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    difficultyTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
+    valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
+    difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]
@@ -62,9 +86,9 @@ for subjectID in subjectList:
         controlSingleRun = controlTrials[(controlTrials.run  == run)] 
         scalingSingleRun = scalingTrials[(scalingTrials.run  == run)]
         bundlingSingleRun = bundlingTrials[(bundlingTrials.run  == run)]
- #       Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
-        difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
+ #      Cut down to only 3 columns
+        value3Col = valueSingleRun[['tResponse','linearValue']]
+        difficulty3Col = difficultySingleRun[['tResponse','linearDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         scaling3Col = scalingSingleRun[['tResponse','ones']]
         bundling3Col = bundlingSingleRun[['tResponse','ones']]
@@ -80,7 +104,7 @@ for subjectID in subjectList:
         control3Col.to_csv(controlDir, sep ='\t', header = False)
         scaling3Col.to_csv(scalingDir, sep ='\t', header = False)
         bundling3Col.to_csv(BundlingDir, sep ='\t', header = False)
-#        Be Tidy! Close all of those open files! 
+#       Be Tidy! Close all of those open files! 
         valueDir.close()
         difficultyDir.close()
         controlDir.close()

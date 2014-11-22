@@ -7,9 +7,9 @@ Created on Wed Nov 12 16:08:50 2014
 
 ## From MNI to 2mm voxel space
 
-MNIx = 32
-MNIy = -51
-MNIz =  59
+MNIx = 52
+MNIy = -59
+MNIz = -2
 
 # X coordinate
 Vx = (MNIx-90)/(-2)

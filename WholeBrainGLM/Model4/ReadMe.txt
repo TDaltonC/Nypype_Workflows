@@ -9,12 +9,21 @@ Regressors
 2: Scaling - Task regressor for Scaling trials
 3: Bundling - Task regressor for Bundling trials
 
-Contrasts
-
+# Contrasts
 cont0 = ['Control','T', ['Control'],[1]]
 cont1 = ['Value','T', ['Value'],[1]]
-cont2 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
-cont3 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
-cont4 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
-cont5 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
-cont6 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
+cont2 = ['Scaling','T', ['Scaling'],[1]]
+cont3 = ['Bundling','T', ['Bundling'],[1]]
+cont4 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
+cont5 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
+cont6 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
+cont7 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
+cont8 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
+contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8]
+
+# ROI Masks
+ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),
+        os.path.abspath('../ROIs/lAG.nii.gz'),
+        os.path.abspath('../ROIs/lIPS.nii.gz'),
+        os.path.abspath('../ROIs/rIPS.nii.gz'),
+        os.path.abspath('../ROIs/rLingual.nii.gz')]

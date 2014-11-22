@@ -72,3 +72,21 @@ cont8 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
 cont9 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
 contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8,cont9]
 
+# ROI Masks
+ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),
+            os.path.abspath('../ROIs/lAG.nii.gz'),
+            os.path.abspath('../ROIs/lIPS.nii.gz'),
+            os.path.abspath('../ROIs/rIPS.nii.gz'),
+            os.path.abspath('../ROIs/rLingual.nii.gz'),
+            os.path.abspath('../ROIs/ACC.nii.gz'),
+            os.path.abspath('../ROIs/lIFG.nii.gz'),
+            os.path.abspath('../ROIs/lpITG.nii.gz'),
+            os.path.abspath('../ROIs/lSFG1.nii.gz'),
+            os.path.abspath('../ROIs/lSFG2.nii.gz'),
+            os.path.abspath('../ROIs/mOFC.nii.gz'),
+            os.path.abspath('../ROIs/Perc.nii.gz'),
+            os.path.abspath('../ROIs/rIFG.nii.gz'),
+            os.path.abspath('../ROIs/rPCG.nii.gz'),
+            os.path.abspath('../ROIs/rpITG.nii.gz'),
+            os.path.abspath('../ROIs/rSFG.nii.gz'),
+            os.path.abspath('../ROIs/vmPFC.nii.gz')]
