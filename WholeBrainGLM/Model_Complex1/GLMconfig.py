@@ -74,3 +74,9 @@ cont7 = ['ThreeItems>Control','T', ['ThreeItems','Control'],[1,-1]]
 cont8 = ['FourItems>Control','T', ['FourItems','Control'],[1,-1]]
 contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8]
 
+# ROI Masks
+ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),
+        os.path.abspath('../ROIs/lAG.nii.gz'),
+        os.path.abspath('../ROIs/lIPS.nii.gz'),
+        os.path.abspath('../ROIs/rIPS.nii.gz'),
+        os.path.abspath('../ROIs/rLingual.nii.gz')]

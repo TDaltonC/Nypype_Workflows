@@ -28,7 +28,7 @@ Configurations
 """
 
 #This should be the only thing you have to set
-modelName = "Model3"
+modelName = "Model6ln"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -126,6 +126,11 @@ thresholdNegative = pe.MapNode(interface=fsl.Threshold(thresh = -1.645,
                                                direction = 'above'),
                      name = 'thresholdNegative',
                      iterfield=['in_file'])
+                     
+ROIs = pe.MapNode(interface = fsl.ApplyMask(),
+                       name ='ROIs',
+                       iterfield=['in_file'],
+                       iterables = ('mask_file',ROI_Masks))
 
 '''
 ===========
@@ -148,26 +153,20 @@ masterpipeline.connect([(copemerge,flameo,[('merged_file','cope_file')]),
                         ])  
                         
 masterpipeline.connect([(flameo,thresholdPositive,[('zstats','in_file')]),
-                        (flameo,thresholdNegative,[('zstats','in_file')])])
+                        (flameo,thresholdNegative,[('zstats','in_file')]),
+                        (flameo,ROIs,[('zstats','in_file')])])
 
 masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
-                                             ('fstats','fstats'),
-                                             ('mrefvars','mrefvars'),
-                                             ('pes','pes'),
-                                             ('res4d','res4d'),
                                              ('tstats','tstats'),
                                              ('var_copes','var_copes'),
-                                             ('weights','weights'),
-                                             ('zfstats','zfstats'),
                                              ('zstats','zstats'),
                                              ]),
-                         (copemerge,MFXdatasink,[('merged_file','merged.cope_file')]),
-                         (varcopemerge,MFXdatasink,[('merged_file','merged.varcope_file')]),
                          (thresholdPositive,MFXdatasink,[('out_file','thresholdedPositive')]),
-                         (thresholdNegative,MFXdatasink,[('out_file','thresholdedNegative')])
+                         (thresholdNegative,MFXdatasink,[('out_file','thresholdedNegative')]),
+                         (ROIs,MFXdatasink,[('out_file','ROIs')])
                          ])
         
 if __name__ == '__main__':
     masterpipeline.write_graph(graph2use='hierarchical')    
 #    masterpipeline.run()
-    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':8})
+    masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})

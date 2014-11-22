@@ -14,8 +14,6 @@ import os
 import errno
 import pandas
 import numpy as np
-
-
 """
 =========
 Functions
@@ -37,9 +35,9 @@ def safe_open_w(path):
  
 def valueLookup(itemRank,itemValueDF):
     if itemRank == 0 :
-        value = 0. 
+        value = 0.
     else:
-        value = itemValueDF[itemValueDF.index == str(itemRank)].itemMeasure
+        value =  itemValueDF[itemValueDF.index == str(itemRank)].CSBValue
     return value
     
 valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])
@@ -68,9 +66,12 @@ for subjectID in subjectList:
     trialbytrial['item4value'] = valueLookupVec(trialbytrial.item4,itemValueDF = itemvalue)
 #        the linear value is the sum of the measure for each of the items in a bundle
     trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value']
-
+    fixedOptionValue = valueLookup(11,itemvalue)
+    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
+    
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
+    valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
+    difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]    
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]
@@ -79,26 +80,31 @@ for subjectID in subjectList:
     for run in runs:
 #       chop each of the evelt fiels acording to run
         valueSingleRun = valueTrials[(valueTrials.run  == run)]
+        difficultySingleRun = difficultyTrials[(difficultyTrials.run  == run)]
         controlSingleRun = controlTrials[(controlTrials.run  == run)] 
         scalingSingleRun = scalingTrials[(scalingTrials.run  == run)]
         bundlingSingleRun = bundlingTrials[(bundlingTrials.run  == run)]
  #      Cut down to only 3 columns
         value3Col = valueSingleRun[['tResponse','linearValue']]
+        difficulty3Col = difficultySingleRun[['tResponse','linearDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         scaling3Col = scalingSingleRun[['tResponse','ones']]
         bundling3Col = bundlingSingleRun[['tResponse','ones']]
 #       Name and open the destinations for event files
         valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
+        difficultyDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
         controlDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
         scalingDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))
         BundlingDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Bundling.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
         value3Col.to_csv(valueDir, sep ='\t', header = False)
+        difficulty3Col.to_csv(difficultyDir, sep ='\t', header = False)
         control3Col.to_csv(controlDir, sep ='\t', header = False)
         scaling3Col.to_csv(scalingDir, sep ='\t', header = False)
         bundling3Col.to_csv(BundlingDir, sep ='\t', header = False)
 #       Be Tidy! Close all of those open files! 
         valueDir.close()
+        difficultyDir.close()
         controlDir.close()
         scalingDir.close()
         BundlingDir.close()
