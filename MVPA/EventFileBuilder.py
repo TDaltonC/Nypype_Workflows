@@ -84,7 +84,7 @@ for subjectID in subjectList:
     liveTrials = trialbytrial[(trialbytrial.TargetType  != 0)]
     
     liveTrials.reset_index(level=0, inplace=True)
-    liveTrials["volumeNum"] = np.rint(liveTrials.tOnset+5/2)
+    liveTrials["volumeNum"] = np.rint((liveTrials.tOnset+5)/2)
     
     
     
