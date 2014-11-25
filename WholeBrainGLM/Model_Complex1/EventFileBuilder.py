@@ -33,6 +33,15 @@ def safe_open_w(path):
     '''
     mkdir_p(os.path.dirname(path))
     return open(path, 'w')
+
+def valueLookup(itemRank,itemValueDF):
+    if str(itemRank) == '0':
+        value = 0. 
+    else:
+        value = itemValueDF[itemValueDF.index == str(itemRank)].CSValue
+    return value
+    
+
  
 def num_itm_on_screen(trialType):
     if   trialType == 1:
@@ -46,6 +55,7 @@ def num_itm_on_screen(trialType):
     elif trialType in (6, 9):
         return 4
 
+valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])
 VEC_num_itm_on_screen = np.vectorize(num_itm_on_screen)
 
 """
@@ -58,13 +68,28 @@ subjectList = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','S
 for subjectID in subjectList:
 #   load the trial by trial data for this subject
     trialbytrial = pandas.DataFrame.from_csv(os.path.abspath('../../../RawData/'+ subjectID + '/MatLABOutput/trialByTrial.csv'))
+    itemvalue = pandas.DataFrame.from_csv(os.path.abspath('../../../RawData/'+ subjectID + '/dataFrames/itemValue.csv'))
 #   Add a column of ones to the dataframe (this is usefull for creating the three column files)    
     trialbytrial['ones'] = 1
+
+#   Create a new column that is the linear value of each option (SORRY THIS IS SO WET! WE WERE IN A HURRY!!!)
+#       value of item in position 1
+    trialbytrial['item1value'] = valueLookupVec(trialbytrial.item1,itemValueDF = itemvalue)
+#       value of item in position 2
+    trialbytrial['item2value'] = valueLookupVec(trialbytrial.item2,itemValueDF = itemvalue)
+#       value of item in position 3
+    trialbytrial['item3value'] = valueLookupVec(trialbytrial.item3,itemValueDF = itemvalue)
+#       value of item in position 4
+    trialbytrial['item4value'] = valueLookupVec(trialbytrial.item4,itemValueDF = itemvalue)
+#        the linear value is the sum of the measure for each of the items in a bundle
+    trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value']
+    fixedOptionValue = valueLookup(11,itemvalue)
+    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
 #   Solve for the number of items on screen
     trialbytrial['numItmOnScrn'] = VEC_num_itm_on_screen(trialbytrial['trialType'])
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
-    difficultyTrials = trialbytrial[(trialbytrial.valueOption  != 0)]
+    valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
+    difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
     controlTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 1)]
     twoItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 2)]
     threeItmTrials = trialbytrial[(trialbytrial.numItmOnScrn  == 3)]
@@ -80,8 +105,8 @@ for subjectID in subjectList:
         threeItmSingeRun = threeItmTrials[(threeItmTrials.run  == run)]
         fourItmSingeRun = fourItmTrials[(fourItmTrials.run  == run)]
  #      Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
-        difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
+        value3Col = valueSingleRun[['tResponse','linearValue']]
+        difficulty3Col = difficultySingleRun[['tResponse','linearDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         twoItm3Col = twoItmSingeRun[['tResponse','ones']]
         threeItm3Col = threeItmSingeRun[['tResponse','ones']]

@@ -71,3 +71,9 @@ cont7 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
 cont8 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
 contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8]
 
+# ROI Masks
+ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),
+        os.path.abspath('../ROIs/lAG.nii.gz'),
+        os.path.abspath('../ROIs/lIPS.nii.gz'),
+        os.path.abspath('../ROIs/rIPS.nii.gz'),
+        os.path.abspath('../ROIs/rLingual.nii.gz')]

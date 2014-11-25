@@ -37,9 +37,9 @@ def safe_open_w(path):
  
 def valueLookup(itemRank,itemValueDF):
     if itemRank == 0 :
-        value = 0 
+        value = 0. 
     else:
-        value = itemValueDF[itemValueDF.index == itemRank].itemMeasure
+        value = itemValueDF[itemValueDF.index == str(itemRank)].itemMeasure
     return value
     
 valueLookupVec = np.vectorize(valueLookup,excluded = ['itemValueDF'])
@@ -69,7 +69,7 @@ for subjectID in subjectList:
 #        the linear value is the sum of the measure for each of the items in a bundle
     trialbytrial['linearValue'] = trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value']
     fixedOptionValue = valueLookup(11,itemvalue)
-    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue[11])
+    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
 #   Fliter down to multi-run event files  
     valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
     difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]    

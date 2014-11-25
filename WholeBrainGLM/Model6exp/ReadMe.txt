@@ -1,11 +1,13 @@
 Description & Goal
 
-This model is designed to assess the differences between the three tasks. It should be compared to model 4 (same as this but without a diff regressor) and model 1 (same as this but uses the max-likelihood estimate as Value).
+This model is designed to assess the differences between the three tasks. It should be compared to model 6 (same as this but the values aren't used as an exponate).
+
+Value Model -- For this model the value of the options was estomated by a max-likelihood model that used all tasks ["CSBValue"] (model1 only used the control and scaling tasks). It also includes a fixed dumby for bunding and a different fixed dumby for scaling). This value is then used as the exponate of e.
 
 Regressors
 
-0: Value - Parametric value (as provided by the distance measure) of the on screen option
-1: Difficulty - Parametric difference in values (as provided by the distance measure) of the on screen option and the off screen option
+0: Value - Parametric value of the on screen option
+1: Difficulty - Parametric difference in values of the on screen option and the off screen option
 2: Control - Task regressor for Control trials
 3: Scaling - Task regressor for Scaling trials
 4: Bundling - Task regressor for Bundling trials
