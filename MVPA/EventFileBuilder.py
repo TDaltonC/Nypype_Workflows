@@ -64,6 +64,23 @@ def VolumeTypeLookUp(VolNum,liveTrials):
         return TrialType
     except:
         return 0
+ 
+#Runs through trialType and uses counters (a, b) to generate chunks of equal composition and size       
+def ChunkData(filledOut):
+    print filledOut.trialType
+    a, b, h = 0, 0, 0
+    clist=list()
+    for i in filledOut.trialType:
+        if i==1:
+            a=1+a
+            h=int(a/4)+1
+        elif i==2:
+            b=1+b
+            h=int(b/4)+1
+        else:
+            h=0
+        clist.append(h)
+    filledOut["chunkNum"] = clist
 
 extValueLookupVec = np.vectorize(extValueLookup)
 VolumeTypeLookUp_Vec = np.vectorize(VolumeTypeLookUp,excluded = ['liveTrials'])
@@ -84,9 +101,7 @@ for subjectID in subjectList:
     liveTrials = trialbytrial[(trialbytrial.TargetType  != 0)]
     
     liveTrials.reset_index(level=0, inplace=True)
-    liveTrials["volumeNum"] = np.rint(liveTrials.tOnset+5/2)
-    
-    
+    liveTrials["volumeNum"] = np.rint((liveTrials.tOnset+5)/2)
     
     print subjectID
     runs =set(trialbytrial['run'])
@@ -98,6 +113,8 @@ for subjectID in subjectList:
         filledOut["trialType"] = VolumeTypeLookUp_Vec(filledOut.index,liveTrials = liveTrialsSingleRun)
 #       Name and open the destinations for event files
         writeDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) +'.txt'))
+#       Sort data into chunks
+        ChunkData(filledOut)
 #       write each 3-column event file as a tab dilimited csv
         filledOut.to_csv(writeDir, sep ='\t', header = False)
 #       Be Tidy! Close all of those open files! 
