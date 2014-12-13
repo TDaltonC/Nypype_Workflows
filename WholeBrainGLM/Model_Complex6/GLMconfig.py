@@ -40,7 +40,7 @@ def configPaths(modelName):
     # Crash Records
     crashRecordsDir =         os.path.abspath('../' + modelName + '/WorkingDir/crashdumps')
     return data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir
-    
+
 # Templates
 mfxTemplateBrain        = '/usr/local/fsl/data/standard/MNI152_T1_2mm.nii.gz'
 strippedmfxTemplateBrain= '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
@@ -63,8 +63,8 @@ TR = 2.
 cont0 = ['Control','T', ['Control'],[1]]
 cont1 = ['Value','T', ['Value'],[1]]
 cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['Scaling','T', ['Scaling'],[1]]
-cont4 = ['Bundling','T', ['Bundling'],[1]]
+cont3 = ['ScalingItmCount','T', ['ScalingItmCount'],[1]]
+cont4 = ['BundlingItmCount','T', ['BundlingItmCount'],[1]]
 cont5 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
 cont6 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
 cont7 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]

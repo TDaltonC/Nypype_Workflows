@@ -72,7 +72,7 @@ extValueLookupVec = np.vectorize(extValueLookup,excluded = ['itemValueDF'])
 MEAT & POTATOS
 ==============
 """   
-subjectList = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','SID710']
+subjectList = ['SID702','SID703','SID706','SID707','SID708','SID709','SID710']
 
 for subjectID in subjectList:
 #   load the trial by trial data for this subject
@@ -95,10 +95,11 @@ for subjectID in subjectList:
 #        the linear value is the sum of the measure for each of the items in a bundle and the externality
     trialbytrial['linearValue'] = np.exp(trialbytrial['item1value'] + trialbytrial['item2value'] + trialbytrial['item3value'] + trialbytrial['item4value'] + trialbytrial['ext'])
     fixedOptionValue = np.exp(valueLookup(11,itemvalue))
-    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'] - fixedOptionValue['11'])
+    trialbytrial['linearValue'] = trialbytrial['linearValue'] - fixedOptionValue[0]
+    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'])
 #   Fliter down to multi-run event files  
-    valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
-    difficultyTrials = trialbytrial[(trialbytrial.linearValue  != 0)]    
+    valueTrials = trialbytrial[(trialbytrial.trialType  != 1)]
+    difficultyTrials = trialbytrial[(trialbytrial.trialType  != 1)]    
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]

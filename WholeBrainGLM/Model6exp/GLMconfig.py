@@ -49,7 +49,7 @@ mniMask                 = '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask
 
 
 # subject directories
-subject_list = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','SID710'] 
+subject_list = ['SID702','SID703','SID706','SID707','SID708','SID709','SID710'] 
 
 #List of functional scans
 func_scan= [1,2,3,4,5]

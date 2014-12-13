@@ -40,7 +40,7 @@ def configPaths(modelName):
     # Crash Records
     crashRecordsDir =         os.path.abspath('../' + modelName + '/WorkingDir/crashdumps')
     return data_dir, ev_dir, withinSubjectResults_dir, betweenSubjectResults_dir, workingdir,crashRecordsDir
-    
+
 # Templates
 mfxTemplateBrain        = '/usr/local/fsl/data/standard/MNI152_T1_2mm.nii.gz'
 strippedmfxTemplateBrain= '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz'
@@ -49,7 +49,7 @@ mniMask                 = '/usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask
 
 
 # subject directories
-subject_list = ['SID702','SID703','SID706','SID707','SID708','SID709','SID710'] 
+subject_list = ['SID702','SID703','SID705','SID706','SID707','SID708','SID709','SID710'] 
 
 #List of functional scans
 func_scan= [1,2,3,4,5]
@@ -63,14 +63,15 @@ TR = 2.
 cont0 = ['Control','T', ['Control'],[1]]
 cont1 = ['Value','T', ['Value'],[1]]
 cont2 = ['Difficulty','T', ['Difficulty'],[1]]
-cont3 = ['Scaling','T', ['Scaling'],[1]]
-cont4 = ['Bundling','T', ['Bundling'],[1]]
-cont5 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
-cont6 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
-cont7 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
-cont8 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
-cont9 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
-contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8,cont9]
+cont3 = ['TwoItems','T', ['TwoItems'],[1]]
+cont4 = ['ThreeItems','T', ['ThreeItems'],[1]]
+cont5 = ['FourItems','T', ['FourItems'],[1]]
+cont6 = ['Scaling>Control','T', ['Scaling','Control'],[1,-1]]
+cont7 = ['Bundling>Control','T', ['Bundling','Control'],[1,-1]]
+cont8 = ['Bundling>Scaling','T', ['Bundling','Scaling'],[1,-1]]
+cont9 = ['Scaling>Bundling','T', ['Scaling','Bundling'],[1,-1]]
+cont10 = ['Scaling+Bundling>Control','T', ['Scaling','Bundling','Control'],[.5,.5,-1]]
+contrasts = [cont0,cont1,cont2,cont3,cont4,cont5,cont6,cont7,cont8,cont9,cont10]
 
 # ROI Masks
 ROI_Masks = [os.path.abspath('../ROIs/HOMiddleFrontalGyrus.nii.gz'),

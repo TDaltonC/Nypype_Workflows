@@ -12,7 +12,7 @@ import seaborn as sns
 import pandas as p
 
 lAGScaling = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_3/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..lAG.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz')
-lIPSScaling = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_3/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..lIPS.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz')
+lIPSScaling = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz')
 rIPSScaling = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_3/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..rIPS.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz')
 rLingualScaling = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/DLPFC_ROI/_con_3/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..rLingual.nii.gz/_DLPFC_ROI0/zstat1_masked.nii.gz')
 
