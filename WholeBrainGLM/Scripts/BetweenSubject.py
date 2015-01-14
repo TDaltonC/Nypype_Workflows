@@ -28,7 +28,7 @@ Configurations
 """
 
 #This should be the only thing you have to set
-modelName = "Model_Complex6"
+modelName = "Model_Complex8"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *

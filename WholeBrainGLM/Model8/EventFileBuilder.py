@@ -15,6 +15,10 @@ import errno
 import pandas
 import numpy as np
 
+import sys
+sys.path.insert(0,  '/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Scripts')
+import valuePilotFunctions as vpf
+
 """
 =========
 Functions
@@ -66,7 +70,10 @@ for subjectID in subjectList:
     controlTrials = trialbytrial[(trialbytrial.trialType  == 2)|(trialbytrial.trialType  == 3)]
     scalingTrials = trialbytrial[(trialbytrial.trialType  == 4)|(trialbytrial.trialType  == 5)|(trialbytrial.trialType  == 6)]
     bundlingTrials = trialbytrial[(trialbytrial.trialType  == 7)|(trialbytrial.trialType  == 8)|(trialbytrial.trialType  == 9)]
-    print subjectID
+    print subjectID      
+#   Make a plot of the distribution of value and value-diff across the three condictions and save them.         
+    vpf.savePlotDisributionsByTT(trialbytrial,"linearValue",'EVfiles/'+subjectID)
+    vpf.savePlotDisributionsByTT(trialbytrial,"linearDiff",'EVfiles/'+subjectID)
     runs =set(trialbytrial['run'])
     for run in runs:
 #       chop each of the event fiels acording to run

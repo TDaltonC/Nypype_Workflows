@@ -14,39 +14,15 @@ import os
 import errno
 import pandas
 import numpy as np
+import sys
+sys.path.insert(0,  '/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Scripts')
+import valuePilotFunctions as vpf
 
 """
 =========
 Functions
 =========
 """
-def mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as exc: # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else: raise
-
-def safe_open_w(path):
-    ''' Open "path" for writing, creating any parent directories as needed.
-    '''
-    mkdir_p(os.path.dirname(path))
-    return open(path, 'w')
- 
-def num_itm_on_screen(trialType):
-    if   trialType == 1:
-        return 0
-    elif trialType in (2, 3):
-        return 1
-    elif trialType in (4, 7):
-        return 2
-    elif trialType in (5, 8):
-        return 3
-    elif trialType in (6, 9):
-        return 4
-
-VEC_num_itm_on_screen = np.vectorize(num_itm_on_screen)
 
 """
 ==============
@@ -64,8 +40,7 @@ for subjectID in subjectList:
 
     trialbytrial['linearValue'] = optionValue['optionValue']
     trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'])
-
-    trialbytrial['numItmOnScrn'] = VEC_num_itm_on_screen(trialbytrial['trialType'])
+    trialbytrial['numItmOnScrn'] = vpf.num_itm_on_screen_Vec(trialbytrial['trialType'])
 
 #   Fliter down to multi-run event files  
     valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
@@ -88,21 +63,21 @@ for subjectID in subjectList:
         ScalingItmCountRun = ScalingItmCount[(ScalingItmCount.run  == run)]
         bundlingItmCountRun = bundlingItmCount[(bundlingItmCount.run  == run)]
  #      Cut down to only 3 columns
-        value3Col = valueSingleRun[['tResponse','valueOption']]
-        difficulty3Col = difficultySingleRun[['tResponse','valueDiff']]
+        value3Col = valueSingleRun[['tResponse','linearValue']]
+        difficulty3Col = difficultySingleRun[['tResponse','linearDiff']]
         control3Col = controlSingleRun[['tResponse','ones']]
         scaling3Col = scalingSingleRun[['tResponse','ones']]
         bundling3Col = bundlingSingleRun[['tResponse','ones']]
         ScalingItmCount3Col = ScalingItmCountRun[['tResponse','numItmOnScrn']]
         bundlingItmCount3Col = bundlingItmCountRun[['tResponse','numItmOnScrn']]
 #       Name and open the destinations for event files
-        valueDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
-        difficultyDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
-        controlDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
-        scalingDir  = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))
-        BundlingDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Bundling.run00'+ str(run) +'.txt'))
-        ScalingItmCountDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ScalingItmCount.run00'+ str(run) +'.txt'))
-        bundlingItmCountDir = safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/BundlingItmCount.run00'+ str(run) +'.txt'))
+        valueDir            = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Value.run00'+ str(run) +'.txt'))
+        difficultyDir       = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Difficulty.run00'+ str(run) +'.txt'))
+        controlDir          = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
+        scalingDir          = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))
+        BundlingDir         = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Bundling.run00'+ str(run) +'.txt'))
+        ScalingItmCountDir  = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/ScalingItmCount.run00'+ str(run) +'.txt'))
+        bundlingItmCountDir = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/BundlingItmCount.run00'+ str(run) +'.txt'))
 #       write each 3-column event file as a tab dilimited csv
         value3Col.to_csv(valueDir, sep ='\t', header = False)
         difficulty3Col.to_csv(difficultyDir, sep ='\t', header = False)
