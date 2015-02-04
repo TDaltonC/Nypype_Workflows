@@ -99,7 +99,26 @@ if centroid_calc == True:
     for i in range(0, np.unique(targets).size-1):
         for j in range(i+1, np.unique(targets).size):
             print (centroid[i,:]+centroid[j,:])/2
-            
+
+#spotlight loop
+"""
+for i in range(0, flat_data_test[:,1].size):
+    determine voxels in searchlight around element i
+    width=
+    depth=
+    searchlight = [i, i-1, i+1, i+width, i+width-1, i+width+1, i-width-1, i-width+1, i-width]
+    searchlight.append(searchlight-depth)
+    searchligh.append(searchlight+depth)
+    searchlight.append(i+2*depth)
+    searchlight.append(i-2*depth)
+    searchlight append(i+2)
+    searchlight.append(i-2)
+    
+    searchlight = searchlight[searchlight>0 && searchlight[flat_data_test.size]
+    
+    clf.predict(searchlight_sphere)
+r=0, 1 voxel r=1, 7 voxles  r=2, 15 voxles      
+"""
 
 #take out the garbage
 del data, img, flat_data
