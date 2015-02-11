@@ -26,10 +26,8 @@ cross_validation = True #warning, this takes a long time, O(n!)
 def getchunks(datapath, filename):
     #open a 2 column, tab delimeted text file, 1st has targets, 2nd has chunks
     text_file = np.loadtxt(os.path.join(datapath, filename))
-    text_file_targets = text_file[:, 0]
-    text_file_targets.flatten()
-    text_file_chunks = text_file[:,1]
-    text_file_chunks.flatten()
+    text_file_targets = text_file[:, 0].flatten()
+    text_file_chunks = text_file[:,1].flatten()
     return text_file_targets, text_file_chunks
 
 #use nibabel to import nifti
@@ -55,6 +53,8 @@ flat_data = np.reshape(data, (data_dims[0]*data_dims[1]*data_dims[2], data_dims[
 flat_data = flat_data[300000:300010,:]
 
 #determine equal distribution into testing and training sets
+"""Do this with sklearn.cross_validation.train_test_split at first, will shorten time
+    or maybe rewrite taking into account chunks? or is that only needed for z-scoring?"""
 count = np.zeros(len(np.unique(targets)))
 sort = np.zeros(len(targets))
 for i in range(0, len(targets)-1):
