@@ -12,13 +12,15 @@ import nibabel as nib
 from sklearn import neighbors, svm, naive_bayes
 import gc
 from math import factorial
+import itertools
+import matplotlib.pyplot as plt
 
 datapath = '/home/brain/Desktop/analysismvpa/'
 source_file = os.path.join(datapath, 'Scan5s008alowgaus.nii.gz')
 evFile = 'Run5simplevcomplex.txt'
 classifier = 'knn'
 centroid_calc= True
-
+cross_validation = True #warning, this takes a long time, O(n!)
 
 def getchunks(datapath, filename):
     #open a 2 column, tab delimeted text file, 1st has targets, 2nd has chunks
@@ -120,6 +122,24 @@ for i in range(0, flat_data_test[:,1].size):
 r=0, 1 voxel r=1, 7 voxles  r=2, 15 voxles      
 """
 
+if cross_validation == True:
+    #warning, this takes a long time, O(n!)
+    target_length=targets_train.size;
+    permuted_targets_train = np.array(list(itertools.permutations(targets_train))); #generate all permutations of targets in train set
+    cv_results=np.zeros(permuted_targets_train.shape[0])
+    for i in range(0,permuted_targets_train.shape[0]): #iterate through permutations, train and test with each, 
+        clf.fit(np.transpose(flat_data_train), permuted_targets_train[i,:]-1)
+        Z = clf.predict(np.transpose(flat_data_test))
+        cv_results[i]=np.sum(targets_test-Z)/len(Z) #cv_results is accuracy
+        cv_results_10=cv_results*10
+        
+    bin_unique=np.zeros(np.unique(cv_results_10).size+100)  
+    for i in np.unique(cv_results_10):
+        bin_unique[i]=cv_results_10[cv_results_10==i].sum()
+    x=np.arange(0,1.1, .1)
+    plt.bar(x,bin_unique[0:11],.1,align='center')
+
+
 #take out the garbage
-del data, img, flat_data
+del data, img, flat_data, permuted_targets_train, cv_results
 gc.collect()
