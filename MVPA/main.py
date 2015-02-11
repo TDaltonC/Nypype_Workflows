@@ -19,6 +19,7 @@ datapath = '/home/brain/Desktop/analysismvpa/'
 source_file = os.path.join(datapath, 'Scan5s008alowgaus.nii.gz')
 evFile = 'Run5simplevcomplex.txt'
 classifier = 'knn'
+
 centroid_calc= True
 cross_validation = True #warning, this takes a long time, O(n!)
 
