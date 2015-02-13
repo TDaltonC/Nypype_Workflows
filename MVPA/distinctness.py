@@ -11,6 +11,14 @@ have strong commonality between single-item and homogeneous bundle.
 import scipy.spatial.distance.mahalanobis
 
 def distinctness(array1, array2):
+  """
+  Fit multivariate gaussian to array1 which contains all instances of target A.
+  Then compute the distance between each element in B to the model gaussian.
+  
+  Now compare to all other targets, should be much closer
+  
+  Do this for each target
+  """
 
 raw_dist = mahalanobis(array1, array2)
 
