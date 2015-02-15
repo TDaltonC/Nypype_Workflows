@@ -19,15 +19,20 @@ datapath = '/home/brain/Desktop/analysismvpa/'
 source_file = os.path.join(datapath, 'Scan5s008alowgaus.nii.gz')
 evFile = 'Run5simplevcomplex.txt'
 classifier = 'knn'
+spotlight_size='r1'
 
-centroid_calc= True
-cross_validation = True #warning, this takes a long time, O(n!)
+centroid_calc= False
+cross_validation = False #warning, this could take a long time, O(n!)
+spotlight_calc = True
+
 
 def getchunks(datapath, filename):
     #open a 2 column, tab delimeted text file, 1st has targets, 2nd has chunks
     text_file = np.loadtxt(os.path.join(datapath, filename))
-    text_file_targets = text_file[:, 0].flatten()
-    text_file_chunks = text_file[:,1].flatten()
+    text_file_targets = text_file[:, 0]
+    text_file_targets.flatten()
+    text_file_chunks = text_file[:,1]
+    text_file_chunks.flatten()
     return text_file_targets, text_file_chunks
 
 #use nibabel to import nifti
@@ -53,8 +58,6 @@ flat_data = np.reshape(data, (data_dims[0]*data_dims[1]*data_dims[2], data_dims[
 flat_data = flat_data[300000:300010,:]
 
 #determine equal distribution into testing and training sets
-"""Do this with sklearn.cross_validation.train_test_split at first, will shorten time
-    or maybe rewrite taking into account chunks? or is that only needed for z-scoring?"""
 count = np.zeros(len(np.unique(targets)))
 sort = np.zeros(len(targets))
 for i in range(0, len(targets)-1):
@@ -103,8 +106,60 @@ if centroid_calc == True:
         for j in range(i+1, np.unique(targets).size):
             print (centroid[i,:]+centroid[j,:])/2
 
+if spotlight_calc == True:
+    spotlight_dataset = data[:,:,:,1]
+    
+    r0 = [(0,0,0)]
+    r1 = [[0,0,0],[0,1,0],[1,0,0],[0,0,1]]
+    r2 = [[0,0,0],[0,1,0],[1,0,0],[0,0,1],
+         [1,1,0],[1,0,1],[0,1,1], [1,1,1],
+         [0,2,0],[2,0,0],[0,0,2]]
+  
+    size_set = spotlight_dataset.size 
+    
+    for i in range(0,10):
+        print 'element {} ****** of {}'.format(i,size_set)
+        try:
+            x, y, z = 45, 45+i, 45 
+            neighborhood_adj=np.array(eval(spotlight_size))
+            neighborhood = np.ndarray((neighborhood_adj.shape[1]*2+1,3))
+            spotlight_cube = np.ndarray(neighborhood_adj.shape[1]*2+1)
+            neighborhood[0,0:3]=[x,y,z]
+            spotlight_cube[0] = spotlight_dataset[x,y,z]
+            for i in np.arange(.5,neighborhood_adj.shape[0]*.5+1,1):
+                neighborhood[i*2, 0:3]=[x+neighborhood_adj[i+.5][0], y+neighborhood_adj[i+.5][1], z+neighborhood_adj[i+.5][2]]
+                spotlight_cube[i*2] = spotlight_dataset[x+neighborhood_adj[i+.5][0], y+neighborhood_adj[i+.5][1], z+neighborhood_adj[i+.5][2]]
+                neighborhood[i*2+1, 0:3]=[x-neighborhood_adj[i+.5][0], y-neighborhood_adj[i+.5][1], z-neighborhood_adj[i+.5][2]]
+                spotlight_cube[i*2+1] = spotlight_dataset[x-neighborhood_adj[i+.5][0], y-neighborhood_adj[i+.5][1], z-neighborhood_adj[i+.5][2]]
+            print spotlight_cube
+            
+            
+        except RuntimeError:
+            print "oops"
+    
+            
 #spotlight loop
 """
+
+size is 91, 109, 91, number of volumes
+first 91 is right left
+109 is rostral/caudal
+second 91 is dorsal/ventral
+
+r0 = [(0,0,0)]4
+r1 = [[0,0,0],[0,1,0],[1,0,0],[0,0,1]]
+r2 = [[0,0,0],[0,1,0],[1,0,0],[0,0,1],
+     [1,1,0],[1,0,1],[0,1,1], [1,1,1],
+     [0,2,0],[2,0,0],[0,0,2]]
+    
+for i in range(0, flat_data_test[:,1].size): 
+    try:
+        element i + and - neighborhood array
+     
+take elements v to the right and left of i
+shift vertically +/- n up to v, take elements v-n to right and left
+shift +/-in depth
+
 for i in range(0, flat_data_test[:,1].size):
     determine voxels in searchlight around element i
     width=
@@ -122,7 +177,7 @@ for i in range(0, flat_data_test[:,1].size):
     clf.predict(searchlight_sphere)
 r=0, 1 voxel r=1, 7 voxles  r=2, 15 voxles      
 """
-
+            
 if cross_validation == True:
     #warning, this takes a long time, O(n!)
     target_length=targets_train.size;
@@ -139,8 +194,9 @@ if cross_validation == True:
         bin_unique[i]=cv_results_10[cv_results_10==i].sum()
     x=np.arange(0,1.1, .1)
     plt.bar(x,bin_unique[0:11],.1,align='center')
-
+    del permuted_targets_train, cv_results
+        
 
 #take out the garbage
-del data, img, flat_data, permuted_targets_train, cv_results
+#del data, img, flat_data, spotlight_dataset
 gc.collect()
