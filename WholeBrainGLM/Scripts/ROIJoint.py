@@ -13,10 +13,10 @@ import pandas as p
 import scipy as sp
 import matplotlib.pyplot as plt
 
-model = "Model_Complex8"
+model = "Model_Value_Gradient1"
 region= "HOMiddleFrontalGyrus"
-cont1  = "con_8"
-cont2  = "con_11"
+cont1  = "con_4"
+cont2  = "con_5"
 
 ROI1 = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/'+ model +'/MFX_Results/ROIs/_'+ cont1 +'/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..'+ region +'.nii.gz/_ROIs0/zstat1_masked.nii.gz')
 ROI2 = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/'+ model +'/MFX_Results/ROIs/_'+ cont2 +'/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..'+ region +'.nii.gz/_ROIs0/zstat1_masked.nii.gz')
@@ -28,8 +28,8 @@ ROIs = [
         ]
         
 names = [
-        'Scaling (4item)-control',
-        'Bundling (4item)-control'
+        '2',
+        '3'
         ]
 
 df = p.DataFrame(data = {'num':np.zeros(9696)})

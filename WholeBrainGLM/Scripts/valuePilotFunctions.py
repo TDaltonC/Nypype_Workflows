@@ -57,9 +57,19 @@ simpleTrialType_Vec = np.vectorize(simpleTrialType)
 def savePlotDisributionsByTT(trialbytrialDF,columnStr,DIR):
     trialbytrialDF = trialbytrialDF[(trialbytrialDF.linearValue  != 0)]
     trialbytrialDF["trialName"] = simpleTrialType_Vec(trialbytrialDF.trialType)
+    trialbytrialDF["Numitem"] = num_itm_on_screen_Vec(trialbytrialDF.trialType)
     sb.kdeplot(trialbytrialDF[(trialbytrialDF.trialName  == "Control")][columnStr],label = "Control")
     sb.kdeplot(trialbytrialDF[(trialbytrialDF.trialName  == "Scaling")][columnStr],label = "Scaling")
     sb.kdeplot(trialbytrialDF[(trialbytrialDF.trialName  == "Bundling")][columnStr],label = "Bundling")
-    mpl.pyplot.savefig(DIR + '/' + columnStr + '.png')
+    mpl.pyplot.savefig(DIR + '/' + columnStr + '.svg')
     mpl.pyplot.clf()
 #    mpimg.imsave(DIR+'/'+columnStr+' .png',plot)
+def savePlotDisributionsByItemCount(trialbytrialDF,columnStr,DIR):
+    trialbytrialDF = trialbytrialDF[(trialbytrialDF.linearValue  != 0)]
+    trialbytrialDF["ItemCount"] = num_itm_on_screen_Vec(trialbytrialDF.trialType)
+    sb.kdeplot(trialbytrialDF[(trialbytrialDF.ItemCount  == 1)][columnStr],label = "1_Item")
+    sb.kdeplot(trialbytrialDF[(trialbytrialDF.ItemCount  == 2)][columnStr],label = "2_Item")
+    sb.kdeplot(trialbytrialDF[(trialbytrialDF.ItemCount  == 3)][columnStr],label = "3_Item")
+    sb.kdeplot(trialbytrialDF[(trialbytrialDF.ItemCount  == 4)][columnStr],label = "4_Item")
+    mpl.pyplot.savefig(DIR + '/' + columnStr + 'ByItemCount.svg')
+    mpl.pyplot.clf()

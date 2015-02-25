@@ -14,16 +14,16 @@ ROIs = []
 
 
 # Add all of the ROIs you want to plot to the ROIs list
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model0/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model3/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model5/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model6/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model0/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model1/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model3/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model5/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model6/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
 #ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model6exp/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model7/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model7/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
 ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model8/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model8exp/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
-ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model8ln/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model8exp/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
+#ROIs.append(nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/Model8ln/MFX_Results/ROIs/_con_1/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..mOFC.nii.gz/_ROIs0/zstat1_masked.nii.gz'))
 
 
 for ROI in ROIs:
