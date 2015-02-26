@@ -8,6 +8,7 @@ Permutation based CX and mutation (preserves uniqueness)
 Created on Sat Feb 21 13:10:50 2015
 @author: Calvin Leather
 """
+#%% Imorts
 import numpy as np
 import pandas as pd
 from deap import base, creator, tools
@@ -19,19 +20,25 @@ from scoop import futures
 
 print 'defining variables'
 
+# Three col CSV (Item-Code, Option-Type, Value)
 csv_filepath='/home/brain/Desktop/Custom MVPA Workflow/SampleData.csv'
 
+#%% Magic Numbers
 population_size=20
+
+# SALT
 
 n_single=20 #1
 n_hetero=15 #2
 n_homo=22 #3
 n_genome=n_single+n_hetero+n_homo
-n_target=10 #Desired number in each catagory
+n_target=10 #Desired number in each catagory (maybe make this 11 options for the single items)
 
-"""===========define fitness and functions================="""
+#%%"""===========define fitness and functions================="""
+
 print 'defining functions'
 
+# Fitness Function
 def evalMax(individual):
     indiv=dictionaryLookup(individual)
     
@@ -40,14 +47,15 @@ def evalMax(individual):
     normalityCost=mstats.normaltest(indiv[0])[1]+mstats.normaltest(indiv[1])[1]+mstats.normaltest(indiv[2])[1]
     cost=400*rangeCost+distanceCost+100*normalityCost
     return (cost,)
-    
+
+# Creates the initial generation     
 def createIndividual(species):
     #Creates an individual with unique sample
     return [random.sample(range(n_single),n_target), 
                    random.sample(range(n_hetero),n_target),
                     random.sample(range(n_homo), n_target)]
 
-            
+# Crossover algo
 def nonReplicatingCross(ind1, ind2):
     chromosomeNumber = random.randint(0,2)
     indLength = len(ind1[chromosomeNumber])
@@ -83,6 +91,7 @@ def nonReplicatingCross(ind1, ind2):
     
     return ind1, ind2
         
+# Mutation fucntion
 def nonReplicatingMutate(ind,indpb):
     ind=np.asarray(ind)
     for i in range(1,len(ind[0])):
@@ -117,7 +126,8 @@ def nonReplicatingMutate(ind,indpb):
                     working=False
     return ind
     del ind
-    
+
+
 def dictionaryLookup(individual):
     indiv=np.ndarray(shape=(3,10), dtype=float)
     for chro in range(0,3):
@@ -125,7 +135,7 @@ def dictionaryLookup(individual):
             indiv[chro][i]=valueDictionary[chro+1][individual[0][chro][i]]
     return indiv
         
-"""==============import data from csv======================"""
+#%%"""==============import data from csv======================"""
 
 raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=None)
 raw_choice_dataset.dropna()
@@ -137,7 +147,7 @@ for x in range(1,4):
         placeholderValueDictionary[raw_choice_dataset[0][i]] = raw_choice_dataset[2][i]
     valueDictionary[x]=placeholderValueDictionary
 
-"""===============initialize toolbox======================="""
+#%%"""===============initialize toolbox======================="""
 print 'initializing'
 creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
@@ -163,7 +173,7 @@ toolbox.register("mutate", nonReplicatingMutate, indpb=.1)
 toolbox.register("select", tools.selTournament, tournsize=2)
 
 toolbox.register("map", futures.map)
-"""======================main=============================="""
+#%%"""======================main=============================="""
 print 'main'
 if __name__ == "__main__":
     pop = toolbox.population(n=200)   
@@ -208,3 +218,10 @@ if __name__ == "__main__":
             x_grid=np.linspace(0, 1, 1000)
             pdf = np.exp(kde.score_samples(zip(x_grid, ones)))  
             plt.plot(x_grid, pdf, linewidth=3, alpha=.5)
+
+
+#%% TO-DO's
+
+# make the single chromisome 11 long
+# add a term to the fitness function for the "buddy" items.
+# Jensen-Shannon? 
