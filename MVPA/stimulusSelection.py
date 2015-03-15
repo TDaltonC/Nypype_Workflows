@@ -12,7 +12,7 @@ Stick with 2pop ks test or use JS divergence? Or its square?
 
 """
 
-#%% Imports
+#%%==========imports and constants=================%%#
 import numpy as np
 import pandas as pd
 from deap import base, creator, tools
@@ -21,35 +21,46 @@ from scipy.stats import kstest, ks_2samp
 from scoop import futures
 import random, operator, seaborn
 
-
 print 'defining variables'
 
-# Three col CSV (Item-Code, Option-Type, Value)
+# Define the location of the csv file with modeled preferences, should make relative
 csv_filepath='/home/brain/Desktop/Custom MVPA Workflow/options.csv'
 
 #%% Magic Numbers
-nepochs, ngen, npop, cxpb, mutpb = 4,60,250, 0.4, 0.2
-HOFsize=1 #number of individuals to put in each epoc
+#nepochs-number of epochs, ngen-number of generations in an epoch
+#cxpb- probability of a cross over occuring in one chromosome of a mating pair
+#mutpb- probability of at each nucleotide of a mutation
+#number of individuals to put in HOF in each epoc
+nepochs, ngen, npop, cxpb, mutpb = 4,60,250, 0.4, 0.1
+HOFsize=1 
+
 HallOfFame=[]
 
 SID='a03'
-n_single=20 #1 
-n_hetero=15 #2
-n_homo=22 #3
-n_genome=n_single+n_hetero+n_homo
-n_target=10 #Desired number in each catagory
+n_single=20 #1 number of possibilities for singleton
+n_hetero=15 #2 number of possibilities for the heterogenous bundle
+n_homo=22 #3 number of possibilities for the homogeneous scaling
+n_genome=n_single+n_hetero+n_homo #total number of possibilities for all cases
+n_target=10 #Desired number in each chromosome
+
 chromosomeDict={0:n_single, 1:n_hetero, 2:n_homo}
 
+#Define the seed for the random number generator for replication purposes
 random.seed()
 
 #%%===========define fitness and functions=================%%#
-
 print 'defining functions'
 
-# Fitness Function
+
 def evalMax(individual):
+ """ A weighted total of fitness scores to be maximized
+ RangeCost-maximum to minimum
+ SimilarityCost - number of items in both singleton and homogenous scaling
+ UniformCost- Uses KS divergence to indicate distance of distribution of values from uniform distribution
+ DistanceCost- Uses KS divergence to indicate differences between distributions
+ Cost currently is a simple weightable summation, might be changed to F score
+ """
     indiv=dictionaryLookup(individual)
-    
     similarityCost= 15/np.sum(np.in1d(individual[0][0],individual[0][1]))
     rangeCost=1/(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))
     uniformCost=1/(kstest(indiv[0],'uniform')[1]+kstest(indiv[1],'uniform')[1]+kstest(indiv[2],'uniform')[1]+.00001)
@@ -59,11 +70,7 @@ def evalMax(individual):
 
 # Creates the initial generation      
 def createIndividual():
-    #Creates an individual with unique sample
-    x=[np.random.choice(valueDictionary[1].keys(),n_target+1),
-               np.random.choice(valueDictionary[2].keys(),n_target),
-                np.random.choice(valueDictionary[3].keys(),n_target)]
-               
+ """Creates a random individual with 11 singleton, 10 het. bundle, 10 hom. scale"""
     return[np.random.choice(valueDictionary[1].keys(),n_target+1),
                np.random.choice(valueDictionary[2].keys(),n_target),
                 np.random.choice(valueDictionary[3].keys(),n_target)]
@@ -71,26 +78,27 @@ def createIndividual():
 
 # Crossover algorithm          
 def nonReplicatingCross(ind1, ind2):
+ """Performs a crossover in-place"""
     chromosomeNumber = random.randint(0,2)
     indLength = len(ind1[chromosomeNumber])
     cxpoint = random.randint(1,indLength-1)
-    child1 = np.zeros(indLength)
+    child1 = np.zeros(indLength) #create a child array to use
     child2 = np.zeros(indLength)
-    child1[0:cxpoint]=ind2[chromosomeNumber][0:cxpoint]
+    child1[0:cxpoint]=ind2[chromosomeNumber][0:cxpoint] #do the first half of the crossover
     child2[0:cxpoint]=ind1[chromosomeNumber][0:cxpoint]
     index1, index2=0,0
     cont1, cont2=1,1
-    for item1 in ind1[chromosomeNumber]:
+    for item1 in ind1[chromosomeNumber]: #loop to fill in the second half of the crossover w/out replications
         if cxpoint+index1==indLength:
             break
         try:
             np.where(child1==item1)[0][0]
             continue
-        except IndexError:
+        except IndexError: #if there is an error, it means there is no replications, so add the item to the child
             child1[cxpoint+index1]= item1
             index1=index1+1
             cont1==0
-    x=np.where(child1==0)[0]
+    x=np.where(child1==0)[0] #current catch-all incase somehow there is a copy
     for i in x:
         child1[i]=np.random.choice(valueDictionary[chromosomeNumber+1].keys())
     for item2 in ind2[chromosomeNumber]:
@@ -105,25 +113,24 @@ def nonReplicatingCross(ind1, ind2):
     x=np.where(child2==0)[0]
     for i in x:
         child2[i]=np.random.choice(valueDictionary[chromosomeNumber+1].keys())
-    ind1[chromosomeNumber]=child1  
+    ind1[chromosomeNumber]=child1  #copy the child array onto the parent array (in place modification)
     ind2[chromosomeNumber]=child2
     index1, index2=0,0
-
-           
+    
     return ind1, ind2
   
 #Mutation algorithm      
 def nonReplicatingMutate(ind,indpb):
-
-    ind=np.asarray(ind)
+"""Mutates an individual in place"""
+    ind=np.asarray(ind) #copy indiviudal into numpy array
     for chro in range(0,3):
         for i in range(1,len(ind[chro])):
-                if random.random() < indpb:
+                if random.random() < indpb: #for each nucleotide, use roulette to see if there is a mutation
                     working = True 
-                    while working:
+                    while working: #intoduce a mutation at point repeatedly until there is no replication
                         randomN=np.random.choice(valueDictionary[chro+1].keys())
                         if randomN in valueDictionary[chro+1].keys()==0:
-                            print 'noooooooo'
+                            print 'error, replication'
                         try:
                             np.where(ind[0]==randomN)[0][0]
                         except IndexError:
