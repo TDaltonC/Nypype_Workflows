@@ -64,6 +64,7 @@ def evalMax(individual):
  """
     indiv=dictionaryLookup(individual)
     #similarityCost= 15/np.sum(np.in1d(individual[0][0],bundleLookup(individual[0][1]))
+    #similarityCost=15/np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
     similarityCost= 15/np.sum(np.in1d(individual[0][0],individual[0][1]))
     rangeCost=1/(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))
     uniformCost=1/(kstest(indiv[0],'uniform')[1]+kstest(indiv[1],'uniform')[1]+kstest(indiv[2],'uniform')[1]+.00001)
