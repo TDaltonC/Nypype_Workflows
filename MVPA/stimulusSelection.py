@@ -25,7 +25,7 @@ import random, operator, seaborn
 print 'defining variables'
 
 # Three col CSV (Item-Code, Option-Type, Value)
-csv_filepath='/home/brain/Desktop/Custom MVPA Workflow/options.csv'
+csv_filepath='/Users/Dalton/Documents/Projects/BundledOptionsExp/BehavioralValueMeasurements/records/options.csv'
 
 #%% Magic Numbers
 nepochs, ngen, npop, cxpb, mutpb = 4,60,250, 0.4, 0.2
@@ -157,7 +157,7 @@ for x in range(1,4):
     placeholderValueDictionary={}
     for rows in raw_choice_dataset[raw_choice_dataset[3].astype(int)==x].iterrows():
         rows[1][6]=random.randint(100,140) # change this once modeling is done
-        placeholderValueDictionary[int(rows[1][1])] =float(rows[1][6])
+        placeholderValueDictionary[int(rows[1][1])] =float(rows[1][1])
     valueDictionary[x]=placeholderValueDictionary
 
 bundleLookup={}
@@ -258,7 +258,9 @@ with open('output.txt', 'w') as output_text:
     output_text.write("Results for %s individuals, %s generations and %s epochs\n%s\n" %(npop,ngen,nepochs, SID))
     for x in HallOfFame:
         for i in dictionaryLookup(x):
-            seaborn.kdeplot(i, shade=True, bw=10, ax=axes[num])
+            seaborn.kdeplot(i, shade=True, 
+                            bw=3, 
+                            ax=axes[num])
             
         axes[num].set_title("{0:.3f}".format(evalMax(x)[0]))
         if num==0:
@@ -267,6 +269,6 @@ with open('output.txt', 'w') as output_text:
         output_text.write("%s\n\n" %x[0])
         num=num+1
 
-plt.savefig('/home/brain/Desktop/Custom MVPA Workflow/multipage.pdf', format='pdf', bbox_inches='tight', pad_inches=1)
+plt.savefig('/Users/Dalton/Documents/Projects/BundledOptionsExp/BehavioralValueMeasurements/records/multipage.pdf', format='pdf', bbox_inches='tight', pad_inches=1)
 
 print 'Program complete'
