@@ -4,12 +4,10 @@ GA based stimulus selector
  
 Created on Sat Feb 21 13:10:50 2015
 @author: Calvin Leather
-
 To do-
-Crossover algorithm is somehow producing a few repeats -done, fixed
-Consider single-item/hetero 'buddy' term in fitness function
-Stick with 2pop ks test or use JS divergence? Or its square? - done, yes stick with it
-
+Do a complete check for duplication (plot len(np.unique(individual))
+Look into uniformity metric in evalFit()
+Explore different types of means
 """
 
 #%%==========imports and constants=================%%#
@@ -53,28 +51,27 @@ random.seed()
 #%%===========define fitness and functions=================%%#
 print 'defining functions'
 
+uni=np.random.uniform(0,60,500)
 
-def evalMax(individual):
- """ A weighted total of fitness scores to be maximized
- RangeCost-maximum to minimum
- SimilarityCost - number of items in both singleton and homogenous scaling
- UniformCost- Uses KS divergence to indicate distance of distribution of values from uniform distribution
- DistanceCost- Uses KS divergence to indicate differences between distributions
- Cost currently is a simple weightable summation, might be changed to F score
- """
-    indiv=dictionaryLookup(individual)
-    #similarityCost= 15/np.sum(np.in1d(individual[0][0],bundleLookup(individual[0][1]))
-    #similarityCost=15/np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
-    similarityCost= 15/np.sum(np.in1d(individual[0][0],individual[0][1]))
-    rangeCost=1/(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))
-    uniformCost=1/(kstest(indiv[0],'uniform')[1]+kstest(indiv[1],'uniform')[1]+kstest(indiv[2],'uniform')[1]+.00001)
-    distanceCost=1/(ks_2samp(indiv[0], indiv[1])[1]+ks_2samp(indiv[1], indiv[2])[1]+ks_2samp(indiv[2], indiv[0])[1])
-    cost=rangeCost+1.5*uniformCost+distanceCost+similarityCost
+def evalFit(individual):
+    """ A weighted total of fitness scores to be maximized
+    RangeCost-maximum to minimum
+    SimilarityCost - number of items in both singleton and homogenous scaling
+    UniformCost- Uses KS divergence to indicate distance of distribution of values from uniform distribution
+    DistanceCost- Uses KS divergence to indicate differences between distributions
+    Cost currently is a simple weightable summation, might be changed to F score"""
+    indiv=genoToPheno(individual)
+    similarityCost=np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
+    rangeCost=(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))/125
+    #uniformCost=(kstest(indiv[0],'uniform')[1]+kstest(indiv[1],'uniform')[1]+kstest(indiv[2],'uniform')[1])
+    uniformCost=(ks_2samp(indiv[0], uni)[1]+ks_2samp(indiv[1], uni)[1]+ks_2samp(indiv[2], uni)[1])    
+    distanceCost=(ks_2samp(indiv[0], indiv[1])[1]+ks_2samp(indiv[1], indiv[2])[1]+ks_2samp(indiv[2], indiv[0])[1])
+    cost=rangeCost+uniformCost+distanceCost+similarityCost
     return (cost,)
 
 # Creates the initial generation      
 def createIndividual():
- """Creates a random individual with 11 singleton, 10 het. bundle, 10 hom. scale"""
+    """Creates a random individual with 11 singleton, 10 het. bundle, 10 hom. scale"""
     return[np.random.choice(valueDictionary[1].keys(),n_target+1),
                np.random.choice(valueDictionary[2].keys(),n_target),
                 np.random.choice(valueDictionary[3].keys(),n_target)]
@@ -82,7 +79,7 @@ def createIndividual():
 
 # Crossover algorithm          
 def nonReplicatingCross(ind1, ind2):
- """Performs a crossover in-place"""
+    """Performs a crossover in-place"""
     chromosomeNumber = random.randint(0,2)
     indLength = len(ind1[chromosomeNumber])
     cxpoint = random.randint(1,indLength-1)
@@ -125,7 +122,7 @@ def nonReplicatingCross(ind1, ind2):
   
 #Mutation algorithm      
 def nonReplicatingMutate(ind,indpb):
-"""Mutates an individual in place"""
+    """Mutates an individual in place"""
     ind=np.asarray(ind) #copy indiviudal into numpy array
     for chro in range(0,3):
         for i in range(1,len(ind[chro])):
@@ -142,9 +139,9 @@ def nonReplicatingMutate(ind,indpb):
                             working=False        
     return ind
     del ind
-
+    
 #Maps genotype onto phenotype (item number onto value)    
-def dictionaryLookup(individual):
+def genoToPheno(individual):
     indiv=[np.zeros(n_target+1), np.zeros(n_target), np.zeros(n_target)]
     for chro in range(0,3):
         for i in range(len(individual[0][chro])):
@@ -155,11 +152,12 @@ def dictionaryLookup(individual):
 def custHallOfFame(population,maxaddsize):
     for i in tools.selBest(population, k=maxaddsize): 
         HallOfFame.append(i)
-    
+
+def getSim(genome):
+    return [ bundleLookup[k] for k in genome]
         
 #%%==============import data from csv======================%%#
 raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=None)
-print raw_choice_dataset
 
 raw_choice_dataset=raw_choice_dataset[raw_choice_dataset[0]==SID]
 
@@ -173,14 +171,14 @@ for x in range(1,4):
     valueDictionary[x]=placeholderValueDictionary
 
 bundleLookup={}
-for x in raw_choice_dataset[raw_choice_dataset[3].astype(int)==3].iterrows():
+for x in raw_choice_dataset[raw_choice_dataset[3].astype(int)==2].iterrows():
  #create a dictionary/hastable that gives constituent item in homogeneous bundles
-    bundleLookup[int(x[1][1])]=int(x[1][4]),int(x[1][5])
+    bundleLookup[int(x[1][1])]=int(x[1][4])
 
 #%%===============initialize toolbox=======================%%#
 
 print 'initializing'
-creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
+creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
 
 stats = tools.Statistics(key=operator.attrgetter("fitness.values"))
@@ -190,19 +188,25 @@ stats.register("min", np.min)
 
 toolbox = base.Toolbox()
 
-toolbox.register("HOF", custHallOfFame, maxaddsize=3)
+toolbox.register("HOF", custHallOfFame, maxaddsize=HOFsize)
 toolbox.register("create_individual", createIndividual)
 toolbox.register("individuals", tools.initRepeat, creator.Individual,
                  toolbox.create_individual, n=1) 
 toolbox.register("population", tools.initRepeat, list, toolbox.individuals)
 
-toolbox.register("evaluate", evalMax)
+toolbox.register("evaluate", evalFit)
 
 toolbox.register("mate", nonReplicatingCross)
 toolbox.register("mutate", nonReplicatingMutate, indpb=.1)
 toolbox.register("select", tools.selTournament, tournsize=2)
 
 toolbox.register("map", futures.map)
+
+s= tools.Statistics()
+s.register("max", np.max)
+s.register("mean", np.mean)
+
+log=tools.Logbook()
 
 #%%======================main==============================%%#
 
@@ -238,15 +242,15 @@ if __name__ == "__main__":
             fitnesses = toolbox.map(toolbox.evaluate, invalids)
             for ind, fit in zip(invalids, fitnesses):
                 ind.fitness.values = fit  
-                
+            
+            log.record(gen=g,**stats.compile(pop))
             pop[:] = offspring #update population with offspring
             
-        a=dictionaryLookup(tools.selBest(pop,k=1)[0])
+        a=genoToPheno(tools.selBest(pop,k=1)[0])
 
         toolbox.HOF(pop)
         del pop
-
-
+        
 #%%===============reporting and graphing======================%%#
 #Graph, color order - blue green red purple gold light_blue
 f, axes=plt.subplots(len(HallOfFame),1, figsize=(7,2*len(HallOfFame)))
@@ -271,3 +275,9 @@ with open('output.txt', 'w') as output_text:
 plt.savefig('/Users/Dalton/Documents/Projects/BundledOptionsExp/BehavioralValueMeasurements/records/multipage.pdf', format='pdf', bbox_inches='tight', pad_inches=1)
 
 print 'Program complete'
+
+#%%===============plot stats======================%%#
+if 0==1:
+    fit_max = log.select("max")
+    gen=log.select('gen')
+    plt.plot(gen, fit_max)
