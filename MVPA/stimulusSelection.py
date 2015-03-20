@@ -32,7 +32,7 @@ csv_filepath='/Users/Dalton/Documents/Projects/BundledOptionsExp/BehavioralValue
 #mutpb- probability of at each nucleotide of a mutation
 #number of individuals to put in HOF in each epoc
 nepochs, ngen, npop, cxpb, mutpb = 4,60,250, 0.4, 0.1
-HOFsize=1 
+HOFsize=1  #per epoch
 
 HallOfFame=[]
 
@@ -67,6 +67,7 @@ def evalFit(individual):
     uniformCost=(ks_2samp(indiv[0], uni)[1]+ks_2samp(indiv[1], uni)[1]+ks_2samp(indiv[2], uni)[1])    
     distanceCost=(ks_2samp(indiv[0], indiv[1])[1]+ks_2samp(indiv[1], indiv[2])[1]+ks_2samp(indiv[2], indiv[0])[1])
     cost=rangeCost+uniformCost+distanceCost+similarityCost
+
     return (cost,)
 
 # Creates the initial generation      
@@ -139,9 +140,10 @@ def nonReplicatingMutate(ind,indpb):
                             working=False        
     return ind
     del ind
-    
+
 #Maps genotype onto phenotype (item number onto value)    
 def genoToPheno(individual):
+
     indiv=[np.zeros(n_target+1), np.zeros(n_target), np.zeros(n_target)]
     for chro in range(0,3):
         for i in range(len(individual[0][chro])):
