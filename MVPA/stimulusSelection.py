@@ -5,7 +5,6 @@ GA based stimulus selector
 Created on Sat Feb 21 13:10:50 2015
 @author: Calvin Leather
 To do-
-Do a complete check for duplication (plot len(np.unique(individual))
 Look into uniformity metric in evalFit()
 Explore different types of means
 """
@@ -16,8 +15,10 @@ import pandas as pd
 from deap import base, creator, tools
 import matplotlib.pyplot as plt
 from scipy.stats import kstest, ks_2samp
+#from scoop import futures
 import random, operator, seaborn
-import multiprocessing
+#import multiprocessing as mp
+import json
 
 print 'defining variables'
 
@@ -31,7 +32,7 @@ csv_filepath='options.csv'
 #cxpb- probability of a cross over occuring in one chromosome of a mating pair
 #mutpb- probability of at each nucleotide of a mutation
 #number of individuals to put in HOF in each epoc
-nepochs, ngen, npop, cxpb, mutpb =5,100,800, 0.1, 0.05
+nepochs, ngen, npop, cxpb, mutpb =4,250,400, 0.1, 0.05
 HOFsize=1
 
 HallOfFame=[]
@@ -64,15 +65,15 @@ def evalFit(individual):
     DistanceCost- Uses KS divergence to indicate differences between distributions
     Cost currently is a simple weightable summation, might be changed to F score"""
     indiv=genoToPheno(individual)
-    similarityCost=np.sum(np.in1d([ singletonLookup[k] for k in individual[0][0]],[ bundleLookup[k] for k in individual[0][1] ]))
+    similarityCost=np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
     #similarityCost=   np.sum([np.sum(c)>1 for c in [np.in1d(k,x) for k in y]])
     #x is singelton, y is array of tuples of constituent items
-    similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,[ singletonLookup[k] for k in individual[0][0]]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
+    similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,individual[0][0]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
     rangeCost=(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))/125
     uniformCost=1/(kstest(indiv[0],'uniform')[0]+kstest(indiv[1],'uniform')[0]+kstest(indiv[2],'uniform')[0])
     #uniformCost=(ks_2samp(indiv[0], uni)[1]+ks_2samp(indiv[1], uni)[1]+ks_2samp(indiv[2], uni)[1])    
     distanceCost=(ks_2samp(indiv[0], indiv[1])[1]+ks_2samp(indiv[1], indiv[2])[1]+ks_2samp(indiv[2], indiv[0])[1])
-    cost=10*rangeCost+10*uniformCost+5*distanceCost+similarityCost+similarity2
+    cost=rangeCost+uniformCost+distanceCost+similarityCost+similarity2
     return (cost,)
 
 # Creates the initial generation      
@@ -140,32 +141,31 @@ def getSim(genome):
     return [ bundleLookup[k] for k in genome]
         
 #%%==============import data from csv======================%%#
-raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=None)
+raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=0)
 
-raw_choice_dataset=raw_choice_dataset[raw_choice_dataset[1]==SID]
+raw_choice_dataset=raw_choice_dataset[raw_choice_dataset['SID']==SID]
 
 valueDictionary={}
 for x in range(1,4):
   #Create a dictionary/hashtable associating the unique ID assigned to each singleton or bundle to its modeled value
     placeholderValueDictionary={}
-    for rows in raw_choice_dataset[raw_choice_dataset[4].astype(int)==x].iterrows():
+    for rows in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==x].iterrows():
         #rows[1][6]=rows[1][2] # change this once modeling is done
         placeholderValueDictionary[int(rows[1][0])] =float(rows[1][0])
     valueDictionary[x]=placeholderValueDictionary
     
 singletonLookup={}
-for x in raw_choice_dataset[raw_choice_dataset[4].astype(int)==1].iterrows():
+for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==1].iterrows():
     singletonLookup[int(x[1][0])]=int(x[1][5])
 
 bundleLookup={}
-for x in raw_choice_dataset[raw_choice_dataset[4].astype(int)==2].iterrows():
+for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==2].iterrows():
  #create a dictionary/hastable that gives constituent item in homogeneous bundles
     bundleLookup[int(x[1][0])]=int(x[1][5])
     
 bundleLookup2={}
-for x in raw_choice_dataset[raw_choice_dataset[4].astype(int)==3].iterrows():
+for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
     bundleLookup2[int(x[1][0])]=(int(x[1][5]),int(x[1][6]))
-
 #%%===============initialize toolbox=======================%%#
 
 print 'initializing'
@@ -191,8 +191,7 @@ toolbox.register("mate", nonReplicatingCross)
 toolbox.register("mutate", nonReplicatingMutate, indpb=.1)
 toolbox.register("select", tools.selTournament, tournsize=2)
 
-#toolbox.register("map", futures.map)
-#pool = multiprocessing.Pool()
+#pool = mp.Pool()
 #toolbox.register("map", pool.map)
 
 s= tools.Statistics()
@@ -249,10 +248,17 @@ if __name__ == "__main__":
 f, axes=plt.subplots(len(HallOfFame),1, figsize=(7,2*len(HallOfFame)))
 plt.tight_layout(pad=3)
 num=0
-
+previousMax = 0
+maxIndex = 0
 with open('output.txt', 'w') as output_text:
     output_text.write("Results for %s individuals, %s generations and %s epochs\n%s\n" %(npop,ngen,nepochs, SID))
     for x in HallOfFame:
+        if evalFit(x)[0]>previousMax: #finds the best member of the HOF
+            print 'true'
+            print maxIndex
+            maxIndex = num
+            previousMax = evalFit(x)[0]
+        
         for i in genoToPheno(x):
             seaborn.kdeplot(i, shade=True, 
                             bw=2, 
@@ -261,17 +267,31 @@ with open('output.txt', 'w') as output_text:
         axes[num].set_title("{0:d}- Score={1:.3f}".format(num,evalFit(x)[0]))
         if num==0:
             axes[num].set_title("Graphs of Possible Solutions\n{0} individuals, {1} generations, {2} epoch \n\n\n\n{3:.3f}".format(npop,ngen, nepochs,evalFit(x)[0]))    
-        output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d([ singletonLookup[k] for k in x[0][0]],[ bundleLookup[k] for k in x[0][1] ])),
-                                                      np.sum([np.sum(c)>1 for c in [np.in1d(p,[ singletonLookup[k] for k in x[0][0]]) for p in [ bundleLookup2[w] for w in x[0][2] ]]])))
+        output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d(x[0][0],[ bundleLookup[k] for k in x[0][1] ])),
+                                                      np.sum([np.sum(c)>1 for c in [np.in1d(p,x[0][0]) for p in [ bundleLookup2[w] for w in x[0][2] ]]])))
         output_text.write("%s\n\n" %x[0])
-        num=num+1
+        num=num+1 
 
-plt.savefig('multipage.pdf', format='pdf', bbox_inches='tight', pad_inches=1)
+plt.savefig('multipage.pdf', format='pdf',
+    bbox_inches='tight', pad_inches=1)
+x = HallOfFame[maxIndex]
+median = np.sort(x[0][0])[5] # This code converts item rankings into IDs then saves to JSON file
+medLoc = np.where(x[0][0]== median) 
+x[0][0] = np.delete(x[0][0], medLoc)   
+median = singletonLookup[median]
+singletonTransed = [singletonLookup[item] for item in x[0][0].tolist()]
+homoTransed = [bundleLookup[item] for item in x[0][1].tolist()]
+heteroTransed = [bundleLookup2[item] for item in x[0][2].tolist()]
+outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
+outputData = json.dumps(outputData)
+with open('jsonOut.txt.', 'w') as outfile:
+    outfile.write(str(outputData))
 
 print 'Program complete'
 
 #%%===============plot stats======================%%#
-if 1==1:
+if 1==0:
     fit_max = log.select("max")
     gen=log.select('gen')
     plt.plot(gen, fit_max)
+    
