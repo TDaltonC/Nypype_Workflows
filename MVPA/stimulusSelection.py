@@ -37,7 +37,7 @@ HOFsize=1
 
 HallOfFame=[]
 
-SID='a03'
+SID='1'
 n_single=20 #1 number of possibilities for singleton
 n_hetero=15 #2 number of possibilities for the heterogenous bundle
 n_homo=22 #3 number of possibilities for the homogeneous scaling
@@ -54,7 +54,7 @@ np.random.seed(1)
 #%%===========define fitness and functions=================%%#
 print 'defining functions'
 
-uni=np.random.uniform(0,60,500)
+uni=np.random.uniform(0,90,500)
 
 def evalFit(individual):
     
@@ -253,22 +253,32 @@ maxIndex = 0
 with open('output.txt', 'w') as output_text:
     output_text.write("Results for %s individuals, %s generations and %s epochs\n%s\n" %(npop,ngen,nepochs, SID))
     for x in HallOfFame:
+<<<<<<< Updated upstream
         if evalFit(x)[0]>previousMax: #finds the best member of the HOF
             print 'true'
             print maxIndex
             maxIndex = num
             previousMax = evalFit(x)[0]
         
+=======
+>>>>>>> Stashed changes
         for i in genoToPheno(x):
             seaborn.kdeplot(i, shade=True, 
                             bw=2, 
                             ax=axes[num])
             
+<<<<<<< Updated upstream
         axes[num].set_title("{0:d}- Score={1:.3f}".format(num,evalFit(x)[0]))
         if num==0:
             axes[num].set_title("Graphs of Possible Solutions\n{0} individuals, {1} generations, {2} epoch \n\n\n\n{3:.3f}".format(npop,ngen, nepochs,evalFit(x)[0]))    
         output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d(x[0][0],[ bundleLookup[k] for k in x[0][1] ])),
                                                       np.sum([np.sum(c)>1 for c in [np.in1d(p,x[0][0]) for p in [ bundleLookup2[w] for w in x[0][2] ]]])))
+=======
+        axes[num].set_title("{0:.3f}".format(evalFit(x)[0]))
+        if num==0:
+            axes[num].set_title("Graphs of Possible Solutions\n{0} individuals, {1} generations, {2} epoch \n\n\n\n{3:.3f}".format(npop,ngen, nepochs,evalFit(x)[0]))    
+        output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d(x[0][0],x[0][1])),np.sum(np.in1d(x[0][1],x[0][2]))))
+>>>>>>> Stashed changes
         output_text.write("%s\n\n" %x[0])
         num=num+1 
 

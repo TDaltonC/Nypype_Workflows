@@ -25,6 +25,8 @@ Functions
 =========
 """
 
+
+
 """
 ==============
 MEAT & POTATOS
@@ -38,11 +40,13 @@ for subjectID in subjectList:
     optionValue = pandas.DataFrame.from_csv(os.path.abspath('../../../RawData/'+ subjectID + '/dataFrames/DDMValue1.csv'))
 #   Add a column of ones to the dataframe (this is usefull for creating the three column files)    
     trialbytrial['ones'] = 1
-
-    trialbytrial['linearValue'] = optionValue['optionValue']
-    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'])
-
+    
+    trialbytrial['linearValue']= trialbytrial['valueOption']
+    trialbytrial['linearDiff'] = trialbytrial['valueDiff']
+    
     trialbytrial['numItmOnScrn'] = vpf.num_itm_on_screen_Vec(trialbytrial['trialType'])
+    trialbytrial['AverageValue'] = trialbytrial['linearValue']/trialbytrial['numItmOnScrn']
+    trialbytrial['AverageDiff'] = trialbytrial['linearDiff']/trialbytrial['numItmOnScrn']
 
 #   Fliter down to multi-run event files  
     valueTrials = trialbytrial[(trialbytrial.linearValue  != 0)]
@@ -66,12 +70,12 @@ for subjectID in subjectList:
         control3Col     = controlSingleRun[['tResponse','ones']]
         scaling3Col     = scalingSingleRun[['tResponse','ones']]
         bundling3Col    = bundlingSingleRun[['tResponse','ones']]
-        valueC3Col      = controlSingleRun[['tResponse','linearValue']]
-        difficultyC3Col = controlSingleRun[['tResponse','linearDiff']]
-        valueS3Col      = scalingSingleRun[['tResponse','linearValue']]
-        difficultyS3Col = scalingSingleRun[['tResponse','linearDiff']]
-        valueB3Col      = bundlingSingleRun[['tResponse','linearValue']]
-        difficultyB3Col = bundlingSingleRun[['tResponse','linearDiff']]
+        valueC3Col      = controlSingleRun[['tResponse','AverageValue']]
+        difficultyC3Col = controlSingleRun[['tResponse','AverageDiff']]
+        valueS3Col      = scalingSingleRun[['tResponse','AverageValue']]
+        difficultyS3Col = scalingSingleRun[['tResponse','AverageDiff']]
+        valueB3Col      = bundlingSingleRun[['tResponse','AverageValue']]
+        difficultyB3Col = bundlingSingleRun[['tResponse','AverageDiff']]
 #       Name and open the destinations for event files
         controlDir     = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Control.run00'+ str(run) +'.txt'))
         scalingDir     = vpf.safe_open_w(os.path.abspath('EVfiles/'+subjectID + '/Run' + str(run) + '/Scaling.run00'+ str(run) +'.txt'))

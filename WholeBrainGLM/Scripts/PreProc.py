@@ -404,4 +404,4 @@ if __name__ == '__main__':
     # Run the paipline using 1 CPUs
 #    outgraph = masterpipeline.run()    
 #     Run the paipline using 8 CPUs
-    outgraph = masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})
+#    outgraph = masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})

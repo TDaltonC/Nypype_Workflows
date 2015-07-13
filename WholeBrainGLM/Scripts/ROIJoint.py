@@ -13,10 +13,10 @@ import pandas as p
 import scipy as sp
 import matplotlib.pyplot as plt
 
-model = "Model_Value_Gradient1"
+model = "Model8"
 region= "HOMiddleFrontalGyrus"
-cont1  = "con_4"
-cont2  = "con_5"
+cont1  = "con_1"
+cont2  = "con_2"
 
 ROI1 = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/'+ model +'/MFX_Results/ROIs/_'+ cont1 +'/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..'+ region +'.nii.gz/_ROIs0/zstat1_masked.nii.gz')
 ROI2 = nib.load('/Users/Dalton/Documents/Projects/ValuePilot/Workflows/WholeBrainGLM/'+ model +'/MFX_Results/ROIs/_'+ cont2 +'/_mask_file_..Users..Dalton..Documents..Projects..ValuePilot..Workflows..WholeBrainGLM..ROIs..'+ region +'.nii.gz/_ROIs0/zstat1_masked.nii.gz')
@@ -28,8 +28,8 @@ ROIs = [
         ]
         
 names = [
-        '2',
-        '3'
+        'Value Betas',
+        'Difficulty Betas'
         ]
 
 df = p.DataFrame(data = {'num':np.zeros(9696)})
@@ -50,6 +50,7 @@ for ROI in ROIs:
 
 #sns.jointplot(names[0],names[1],df)
 
+df[names[1]] = -(df[names[1]])
 
 #Labled KDE plot
 plt.axhline(linewidth=1, color='r')
@@ -58,6 +59,7 @@ plt.xlabel(names[0])
 plt.ylabel(names[1])
 sns.kdeplot(df[[names[0],names[1]]],kind = "kde")
 sp.stats.ttest_1samp(df[names[1]],0)
+
 
 # dlPFC Can I reduce the number of items?
 

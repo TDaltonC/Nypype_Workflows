@@ -28,7 +28,7 @@ Configurations
 """
 
 #This should be the only thing you have to set
-modelName = "Model_Value_Gradient1"
+modelName = "Model8"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -167,6 +167,6 @@ masterpipeline.connect([(flameo,MFXdatasink,[('copes','copes'),
                          ])
         
 if __name__ == '__main__':
-    masterpipeline.write_graph(graph2use='hierarchical')    
+#    masterpipeline.write_graph(graph2use='hierarchical')    
 #    masterpipeline.run()
     masterpipeline.run(plugin='MultiProc', plugin_args={'n_procs':7})

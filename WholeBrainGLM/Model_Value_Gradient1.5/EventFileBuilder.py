@@ -39,9 +39,9 @@ for subjectID in subjectList:
 #   Add a column of ones to the dataframe (this is usefull for creating the three column files)    
     trialbytrial['ones'] = 1
 
-    trialbytrial['linearValue'] = optionValue['optionValue']
-    trialbytrial['linearDiff'] = abs(trialbytrial['linearValue'])
-
+    trialbytrial['linearValue']= trialbytrial['valueOption']
+    trialbytrial['linearDiff'] = trialbytrial['valueDiff']
+    
     trialbytrial['numItmOnScrn'] = vpf.num_itm_on_screen_Vec(trialbytrial['trialType'])
 
 #   Fliter down to multi-run event files  

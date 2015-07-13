@@ -31,7 +31,7 @@ Configurations
 ==============
 """
 #This should be the only thing you have to set
-modelName = "Model_Value_Gradient1"
+modelName = "Model8"
 
 sys.path.append(os.path.abspath('../' + modelName))
 from GLMconfig import *
@@ -277,7 +277,7 @@ Execute the pipeline
 
 if __name__ == '__main__':
     # Plot a network visualization of the pipline
-    masterpipeline.write_graph(graph2use='hierarchical')
+#    masterpipeline.write_graph(graph2use='hierarchical')
 #    preproc.write_graph(graph2use='hierarchical')
 #    modelfit.write_graph(graph2use='exec')
     # Run the paipline using 1 CPUs
