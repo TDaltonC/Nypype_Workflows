@@ -8,19 +8,18 @@ To do-
 Look into uniformity metric in evalFit()
 Explore different types of means
 """
-
 #%%==========imports and constants=================%%#
 import numpy as np
 import pandas as pd
 from deap import base, creator, tools
 import matplotlib.pyplot as plt
 from scipy.stats import kstest, ks_2samp
-#from scoop import futures
 import random, operator, seaborn
-#import multiprocessing as mp
+import multiprocessing as mp
 import json
+import os
 
-print 'defining variables'
+#os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
 
 # Define the location of the csv file with modeled preferences, should make relative
 # Three col CSV (Item-Code, Option-Type, Value)
@@ -32,12 +31,13 @@ csv_filepath='options.csv'
 #cxpb- probability of a cross over occuring in one chromosome of a mating pair
 #mutpb- probability of at each nucleotide of a mutation
 #number of individuals to put in HOF in each epoc
-nepochs, ngen, npop, cxpb, mutpb =4,250,400, 0.1, 0.05
+nepochs, ngen, npop, cxpb, mutpb =2,50,1000, 0.1, 0.05
+    
 HOFsize=1
 
 HallOfFame=[]
 
-SID='1'
+SID='a03'
 n_single=20 #1 number of possibilities for singleton
 n_hetero=15 #2 number of possibilities for the heterogenous bundle
 n_homo=22 #3 number of possibilities for the homogeneous scaling
@@ -50,14 +50,10 @@ chromosomeDict={0:n_single, 1:n_hetero, 2:n_homo}
 random.seed(1)
 np.random.seed(1)
 
-
 #%%===========define fitness and functions=================%%#
-print 'defining functions'
+uni=np.random.uniform(0,60,500)
 
-uni=np.random.uniform(0,90,500)
-
-def evalFit(individual):
-    
+def evalFit(individual): 
     """ A weighted total of fitness scores to be maximized
     RangeCost-maximum to minimum
     SimilarityCost - number of items in both singleton and homogenous scaling
@@ -65,16 +61,25 @@ def evalFit(individual):
     DistanceCost- Uses KS divergence to indicate differences between distributions
     Cost currently is a simple weightable summation, might be changed to F score"""
     indiv=genoToPheno(individual)
-    similarityCost=np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
+    #####similarityCost=np.sum(np.in1d(individual[0][0],[ bundleLookup[k] for k in individual[0][1] ]))
+    similarityCost=np.sum(np.in1d([singletonLookup[k] for k in individual[0][0]],[ bundleLookup[k] for k in individual[0][1] ]))
+    similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,[singletonLookup[k] for k in individual[0][0]]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
     #similarityCost=   np.sum([np.sum(c)>1 for c in [np.in1d(k,x) for k in y]])
     #x is singelton, y is array of tuples of constituent items
-    similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,individual[0][0]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
+    ######similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,individual[0][0]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
     rangeCost=(np.ptp(indiv[0])+np.ptp(indiv[1])+np.ptp(indiv[2]))/125
     uniformCost=1/(kstest(indiv[0],'uniform')[0]+kstest(indiv[1],'uniform')[0]+kstest(indiv[2],'uniform')[0])
     #uniformCost=(ks_2samp(indiv[0], uni)[1]+ks_2samp(indiv[1], uni)[1]+ks_2samp(indiv[2], uni)[1])    
     distanceCost=(ks_2samp(indiv[0], indiv[1])[1]+ks_2samp(indiv[1], indiv[2])[1]+ks_2samp(indiv[2], indiv[0])[1])
-    cost=rangeCost+uniformCost+distanceCost+similarityCost+similarity2
+    cost=20*rangeCost+30*uniformCost+10*distanceCost+similarityCost+similarity2   
     return (cost,)
+
+def getSims(individual):
+    similarityCost=np.sum(np.in1d([singletonLookup[k] for k in individual[0][0]],[ bundleLookup[k] for k in individual[0][1] ]))
+    similarity2=np.sum([np.sum(c)>1 for c in [np.in1d(p,[singletonLookup[k] for k in individual[0][0]]) for p in [ bundleLookup2[w] for w in individual[0][2] ]]])
+    print similarityCost
+    print similarity2
+    
 
 # Creates the initial generation      
 def createIndividual():
@@ -137,9 +142,15 @@ def custHallOfFame(population,maxaddsize):
     for i in tools.selBest(population, k=maxaddsize): 
         HallOfFame.append(i)
 
-def getSim(genome):
-    return [ bundleLookup[k] for k in genome]
-        
+#checks for human error in value entry
+def inputErrorCheck(raw_data):
+    if not raw_data[['item1', 'item2']].applymap(np.isreal).all().all():
+        raise ValueError('Custom error, ask CL : Some item value is not a number')
+    for bundleType in range(1,4):
+        if raw_data[raw_data['type']==bundleType].duplicated(subset=['item1', 'item2']).any():
+            raise ValueError('Custom error, ask CL : Some item value is duplicated')
+    
+
 #%%==============import data from csv======================%%#
 raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=0)
 
@@ -167,8 +178,6 @@ bundleLookup2={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
     bundleLookup2[int(x[1][0])]=(int(x[1][5]),int(x[1][6]))
 #%%===============initialize toolbox=======================%%#
-
-print 'initializing'
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
 
@@ -191,8 +200,8 @@ toolbox.register("mate", nonReplicatingCross)
 toolbox.register("mutate", nonReplicatingMutate, indpb=.1)
 toolbox.register("select", tools.selTournament, tournsize=2)
 
-#pool = mp.Pool()
-#toolbox.register("map", pool.map)
+
+#toolbox.register('map', futures.map)
 
 s= tools.Statistics()
 s.register("max", np.max)
@@ -200,108 +209,68 @@ s.register("mean", np.mean)
 
 log=tools.Logbook()
 
-#%%======================main==============================%%#
-
-print 'main'
-
-if __name__ == "__main__":
-    for epoch in xrange(nepochs):
-        print 'beginning epoch %s of %s' %(epoch+1,nepochs)
-        pop = toolbox.population(n=npop) #create initial pop
-        
-        fitnesses = toolbox.map(toolbox.evaluate, pop) # eval. fitness of pop
-        for ind, fit in zip(pop, fitnesses):
-            ind.fitness.values = fit
-        
-        for g in range(ngen):  
-            if g%5==0:
-                print g        
-            offspring = toolbox.select(pop, len(pop)) #select which individuals to mate
-            offspring = map(toolbox.clone, offspring)
-            
-            for child1, child2 in zip(offspring[::2], offspring[1::2]): #determine whether to have a cross over
-                if random.random() < cxpb:
-                    child1[0], child2[0] = toolbox.mate(child1[0], child2[0])
-                    del child1.fitness.values, child2.fitness.values
-        
-            for mutant in offspring: #determine whether to mutate
-                if random.random() < mutpb:
-                    mutant[0]=toolbox.mutate(mutant[0])
-                    del mutant.fitness.values      
-            
-            invalids = [ind for ind in offspring if not ind.fitness.valid] #assign fitness scores to new offspring
-            fitnesses = toolbox.map(toolbox.evaluate, invalids)
-            for ind, fit in zip(invalids, fitnesses):
-                ind.fitness.values = fit  
-            
-            log.record(gen=g,**stats.compile(pop))
-            pop[:] = offspring #update population with offspring
-            
-        a=genoToPheno(tools.selBest(pop,k=1)[0])
-
-        toolbox.HOF(pop)
-        del pop
-
-
-#%%===============reporting and graphing======================%%#
-#Graph, color order - blue green red purple gold light_blue
-f, axes=plt.subplots(len(HallOfFame),1, figsize=(7,2*len(HallOfFame)))
-plt.tight_layout(pad=3)
-num=0
-previousMax = 0
-maxIndex = 0
-with open('output.txt', 'w') as output_text:
-    output_text.write("Results for %s individuals, %s generations and %s epochs\n%s\n" %(npop,ngen,nepochs, SID))
-    for x in HallOfFame:
-<<<<<<< Updated upstream
-        if evalFit(x)[0]>previousMax: #finds the best member of the HOF
-            print 'true'
-            print maxIndex
-            maxIndex = num
-            previousMax = evalFit(x)[0]
-        
-=======
->>>>>>> Stashed changes
-        for i in genoToPheno(x):
-            seaborn.kdeplot(i, shade=True, 
-                            bw=2, 
-                            ax=axes[num])
-            
-<<<<<<< Updated upstream
-        axes[num].set_title("{0:d}- Score={1:.3f}".format(num,evalFit(x)[0]))
-        if num==0:
-            axes[num].set_title("Graphs of Possible Solutions\n{0} individuals, {1} generations, {2} epoch \n\n\n\n{3:.3f}".format(npop,ngen, nepochs,evalFit(x)[0]))    
-        output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d(x[0][0],[ bundleLookup[k] for k in x[0][1] ])),
-                                                      np.sum([np.sum(c)>1 for c in [np.in1d(p,x[0][0]) for p in [ bundleLookup2[w] for w in x[0][2] ]]])))
-=======
-        axes[num].set_title("{0:.3f}".format(evalFit(x)[0]))
-        if num==0:
-            axes[num].set_title("Graphs of Possible Solutions\n{0} individuals, {1} generations, {2} epoch \n\n\n\n{3:.3f}".format(npop,ngen, nepochs,evalFit(x)[0]))    
-        output_text.write('%s. Similarity- %s, %s\n'%(num,np.sum(np.in1d(x[0][0],x[0][1])),np.sum(np.in1d(x[0][1],x[0][2]))))
->>>>>>> Stashed changes
-        output_text.write("%s\n\n" %x[0])
-        num=num+1 
-
-plt.savefig('multipage.pdf', format='pdf',
-    bbox_inches='tight', pad_inches=1)
-x = HallOfFame[maxIndex]
-median = np.sort(x[0][0])[5] # This code converts item rankings into IDs then saves to JSON file
-medLoc = np.where(x[0][0]== median) 
-x[0][0] = np.delete(x[0][0], medLoc)   
-median = singletonLookup[median]
-singletonTransed = [singletonLookup[item] for item in x[0][0].tolist()]
-homoTransed = [bundleLookup[item] for item in x[0][1].tolist()]
-heteroTransed = [bundleLookup2[item] for item in x[0][2].tolist()]
-outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
-outputData = json.dumps(outputData)
-with open('jsonOut.txt.', 'w') as outfile:
-    outfile.write(str(outputData))
-
-print 'Program complete'
-
-#%%===============plot stats======================%%#
-if 1==0:
-    fit_max = log.select("max")
-    gen=log.select('gen')
-    plt.plot(gen, fit_max)
+def main_program(pop):    
+    fitnesses = toolbox.map(toolbox.evaluate, pop) # eval. fitness of pop
+    for ind, fit in zip(pop, fitnesses):
+        ind.fitness.values = fit
     
+    for g in range(ngen):  
+        if g%5==0:
+            print str(g) + ' of ' + str(ngen)       
+        offspring = toolbox.select(pop, len(pop)) #select which individuals to mate
+        offspring = map(toolbox.clone, offspring)
+        
+        for child1, child2 in zip(offspring[::2], offspring[1::2]): #determine whether to have a cross over
+            if random.random() < cxpb:
+                child1[0], child2[0] = toolbox.mate(child1[0], child2[0])
+                del child1.fitness.values, child2.fitness.values
+    
+        for mutant in offspring: #determine whether to mutate
+            if random.random() < mutpb:
+                mutant[0]=toolbox.mutate(mutant[0])
+                del mutant.fitness.values      
+        
+        invalids = [ind for ind in offspring if not ind.fitness.valid] #assign fitness scores to new offspring
+        fitnesses = toolbox.map(toolbox.evaluate, invalids)
+        for ind, fit in zip(invalids, fitnesses):
+            ind.fitness.values = fit  
+        
+        log.record(gen=g,**stats.compile(pop))
+        pop[:] = offspring #update population with offspring    
+    return tools.selBest(pop,k=1)[0][0]
+
+#%%======================main==============================%%#
+if __name__ == '__main__':  
+    print 'GA algorithm starting with the following settings:'
+    print 'nepochs = ' + str(nepochs) + ' ngen = ' + str(ngen) + ' npop = ' + str(npop)
+    print 'cxpb = ' + str(cxpb) + ' mutpb = ' + str(mutpb)
+    answer = input('Are the following settings okay? (0/1)  ')
+    if answer == 0:
+        raise ValueError('Custom Error: Please change settings in script file')    
+    
+    print 'initializing processing pool'
+    return_var= []
+    processes = []
+    pool = mp.Pool(processes = 8)
+    pop_pool = [toolbox.population(n=npop) for x in range(8)]
+    results = pool.map(main_program,pop_pool)
+    pool.close()
+    print 'pool finished, outputing to JSON'    
+    
+    results = [[np.sort(x[0]),np.sort(x[1]),np.sort(x[2])] for x in results]
+    
+    resultsFit = [evalFit([x]) for x in results]
+    maxIndex = np.argmax(resultsFit)
+    
+    bestIndividual = results[maxIndex]
+    
+    singletonTransed = [singletonLookup[item] for item in bestIndividual[0]]
+    median = singletonTransed[5]
+    singletonTransed = np.delete(singletonTransed, 5).tolist()
+    homoTransed = [bundleLookup[item] for item in bestIndividual[1]]
+    heteroTransed = [bundleLookup2[item] for item in bestIndividual[2]]
+    
+    outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
+    outputData = json.dumps(outputData)
+    with open('jsonOut.txt.', 'w') as outfile:
+        outfile.write(str(outputData))

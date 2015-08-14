@@ -50,7 +50,6 @@ for ROI in ROIs:
 
 #sns.jointplot(names[0],names[1],df)
 
-df[names[1]] = -(df[names[1]])
 
 #Labled KDE plot
 plt.axhline(linewidth=1, color='r')
@@ -59,6 +58,7 @@ plt.xlabel(names[0])
 plt.ylabel(names[1])
 sns.kdeplot(df[[names[0],names[1]]],kind = "kde")
 sp.stats.ttest_1samp(df[names[1]],0)
+
 
 
 # dlPFC Can I reduce the number of items?
