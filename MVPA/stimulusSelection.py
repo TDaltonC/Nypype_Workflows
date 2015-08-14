@@ -21,11 +21,6 @@ import os
 
 #os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
 
-# Define the location of the csv file with modeled preferences, should make relative
-# Three col CSV (Item-Code, Option-Type, Value)
-csv_filepath='options.csv'
-
-
 #%% Magic Numbers
 #nepochs-number of epochs, ngen-number of generations in an epoch
 #cxpb- probability of a cross over occuring in one chromosome of a mating pair
@@ -151,32 +146,7 @@ def inputErrorCheck(raw_data):
             raise ValueError('Custom error, ask CL : Some item value is duplicated')
     
 
-#%%==============import data from csv======================%%#
-raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=0)
 
-raw_choice_dataset=raw_choice_dataset[raw_choice_dataset['SID']==SID]
-
-valueDictionary={}
-for x in range(1,4):
-  #Create a dictionary/hashtable associating the unique ID assigned to each singleton or bundle to its modeled value
-    placeholderValueDictionary={}
-    for rows in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==x].iterrows():
-        #rows[1][6]=rows[1][2] # change this once modeling is done
-        placeholderValueDictionary[int(rows[1][0])] =float(rows[1][0])
-    valueDictionary[x]=placeholderValueDictionary
-    
-singletonLookup={}
-for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==1].iterrows():
-    singletonLookup[int(x[1][0])]=int(x[1][5])
-
-bundleLookup={}
-for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==2].iterrows():
- #create a dictionary/hastable that gives constituent item in homogeneous bundles
-    bundleLookup[int(x[1][0])]=int(x[1][5])
-    
-bundleLookup2={}
-for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
-    bundleLookup2[int(x[1][0])]=(int(x[1][5]),int(x[1][6]))
 #%%===============initialize toolbox=======================%%#
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
@@ -209,7 +179,8 @@ s.register("mean", np.mean)
 
 log=tools.Logbook()
 
-def main_program(pop):    
+def main_program(pop):
+
     fitnesses = toolbox.map(toolbox.evaluate, pop) # eval. fitness of pop
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
@@ -241,12 +212,44 @@ def main_program(pop):
 
 #%%======================main==============================%%#
 if __name__ == '__main__':  
+    #%%==============import data from csv======================%%#
+    # Define the location of the csv file with modeled preferences, should make relative
+    # Three col CSV (Item-Code, Option-Type, Value)
+    SID = input('enter subject ID')    
+    csv_filepath='rank'+str(SID)+'.csv'
+
+    raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=0)
+
+    valueDictionary={}
+    for x in range(1,4):
+      #Create a dictionary/hashtable associating the unique ID assigned to each singleton or bundle to its modeled value
+        placeholderValueDictionary={}
+        for rows in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==x].iterrows():
+            #rows[1][6]=rows[1][2] # change this once modeling is done
+            placeholderValueDictionary[int(rows[1]['rank'])] =float(rows[1]['rank'])
+        valueDictionary[x]=placeholderValueDictionary
+        
+    singletonLookup={}
+    for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==1].iterrows():
+        singletonLookup[int(x[1]['rank'])]=int(x[1]['item1'])
+
+    bundleLookup={}
+    for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==2].iterrows():
+     #create a dictionary/hastable that gives constituent item in homogeneous bundles
+        bundleLookup[int(x[1]['rank'])]=int(x[1]['item1'])
+        
+    bundleLookup2={}
+    for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
+        bundleLookup2[int(x[1]['rank'])]=(int(x[1]['item1']),int(x[1]['item2']))
+
+
     print 'GA algorithm starting with the following settings:'
     print 'nepochs = ' + str(nepochs) + ' ngen = ' + str(ngen) + ' npop = ' + str(npop)
     print 'cxpb = ' + str(cxpb) + ' mutpb = ' + str(mutpb)
     answer = input('Are the following settings okay? (0/1)  ')
     if answer == 0:
-        raise ValueError('Custom Error: Please change settings in script file')    
+        raise ValueError('Custom Error: Please change settings in script file')
+    
     
     print 'initializing processing pool'
     return_var= []
@@ -272,5 +275,5 @@ if __name__ == '__main__':
     
     outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
     outputData = json.dumps(outputData)
-    with open('jsonOut.txt.', 'w') as outfile:
+    with open('jsonOut'+str(SID)+'.txt', 'w') as outfile:
         outfile.write(str(outputData))
