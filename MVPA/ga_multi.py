@@ -2,7 +2,7 @@
 """
 Created on Thu Aug 13 13:01:21 2015
 
-@author: Calvin Leather
+@author: Calvin
 """
 
 #%%==========imports and constants=================%%#
@@ -16,7 +16,7 @@ import multiprocessing as mp
 import json
 import os
 
-#os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
+os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
 
 # Define the location of the csv file with modeled preferences, should make relative
 # Three col CSV (Item-Code, Option-Type, Value)
@@ -143,9 +143,13 @@ def custHallOfFame(population,maxaddsize):
 def inputErrorCheck(raw_data):
     if not raw_data[['item1', 'item2']].applymap(np.isreal).all().all():
         raise ValueError('Custom error, ask CL : Some item value is not a number')
+    if [raw_data['index']>60].any:
+        raise ValueError("Custom error, ask CL : An item index is > 60")
     for bundleType in range(1,4):
         if raw_data[raw_data['type']==bundleType].duplicated(subset=['item1', 'item2']).any():
+            print raw_data[raw_data['type']==bundleType].duplicated(subset=['item1', 'item2'])
             raise ValueError('Custom error, ask CL : Some item value is duplicated')
+    
     
 
 #%%==============import data from csv======================%%#
@@ -159,21 +163,21 @@ for x in range(1,4):
     placeholderValueDictionary={}
     for rows in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==x].iterrows():
         #rows[1][6]=rows[1][2] # change this once modeling is done
-        placeholderValueDictionary[int(rows[1][0])] =float(rows[1][0])
+        placeholderValueDictionary[int(rows[1]['index'])] =float(rows[1]['index'])
     valueDictionary[x]=placeholderValueDictionary
     
 singletonLookup={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==1].iterrows():
-    singletonLookup[int(x[1][0])]=int(x[1][5])
+    singletonLookup[int(x[1]['index'])]=int(x[1]['item1'])
 
 bundleLookup={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==2].iterrows():
  #create a dictionary/hastable that gives constituent item in homogeneous bundles
-    bundleLookup[int(x[1][0])]=int(x[1][5])
+    bundleLookup[int(x[1]['index'])]=int(x[1]['item1'])
     
 bundleLookup2={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
-    bundleLookup2[int(x[1][0])]=(int(x[1][5]),int(x[1][6]))
+    bundleLookup2[int(x[1]['index'])]=(int(x[1]['item1']),int(x[1]['item2']))
 #%%===============initialize toolbox=======================%%#
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
@@ -271,3 +275,21 @@ if __name__ == '__main__':
     outputData = json.dumps(outputData)
     with open('jsonOut.txt.', 'w') as outfile:
         outfile.write(str(outputData))
+        
+    outputDataFull = np.unique(heteroTransed) 
+    outputDataFull = np.hstack((np.asarray(homoTransed), outputDataFull))
+    outputDataFull = np.hstack((np.asarray(singletonTransed),outputDataFull))
+    outputDataFull = np.unique(outputDataFull)
+
+    outputSingletonsToSort=[]   
+    for x in outputDataFull:
+        x=raw_choice_dataset['elicitedRank'][raw_choice_dataset['type']==1][raw_choice_dataset[raw_choice_dataset['type']==1]['item1']==x].values[0]
+        outputSingletonsToSort.append(x)
+    outputSingletons = np.sort(outputSingletonsToSort)
+    singletonTransed = [singletonLookup[item] for item in outputSingletons]
+    
+    outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
+    outputData = json.dumps(outputData)
+    with open('jsonOutExtended.txt.', 'w') as outfile:
+        outfile.write(str(outputData))
+        
