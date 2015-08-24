@@ -28,7 +28,7 @@ csv_filepath='options.csv'
 #cxpb- probability of a cross over occuring in one chromosome of a mating pair
 #mutpb- probability of at each nucleotide of a mutation
 #number of individuals to put in HOF in each epoc
-nepochs, ngen, npop, cxpb, mutpb =2,50,1000, 0.1, 0.05
+nepochs, ngen, npop, cxpb, mutpb =2,30,100, 0.1, 0.05
     
 HOFsize=1
 
@@ -273,23 +273,23 @@ if __name__ == '__main__':
     
     outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
     outputData = json.dumps(outputData)
-    with open('jsonOut.txt.', 'w') as outfile:
+    with open('jsonOut.txt', 'w') as outfile:
         outfile.write(str(outputData))
         
-    outputDataFull = np.unique(heteroTransed) 
-    outputDataFull = np.hstack((np.asarray(homoTransed), outputDataFull))
-    outputDataFull = np.hstack((np.asarray(singletonTransed),outputDataFull))
-    outputDataFull = np.unique(outputDataFull)
-
-    outputSingletonsToSort=[]   
+    outputDataFull = np.hstack((bestIndividual[0], bestIndividual[1],bestIndividual[2]))
+    outputDataFull = np.sort(outputDataFull)
+    transedFullData = []
     for x in outputDataFull:
-        x=raw_choice_dataset['elicitedRank'][raw_choice_dataset['type']==1][raw_choice_dataset[raw_choice_dataset['type']==1]['item1']==x].values[0]
-        outputSingletonsToSort.append(x)
-    outputSingletons = np.sort(outputSingletonsToSort)
-    singletonTransed = [singletonLookup[item] for item in outputSingletons]
-    
-    outputData = { 'singleton' : singletonTransed, 'homo' : homoTransed, 'hetero' : heteroTransed, 'median' : median }
+        if x in singletonLookup.keys():
+            transedFullData.append(singletonLookup[x])
+        if x in bundleLookup.keys():
+            transedFullData.append(bundleLookup[x])
+        if x in bundleLookup2.keys():
+            transedFullData.append(bundleLookup2[x])
+        else:
+            raise ValueError('Custom error: item in outputData JSON was not in any value dictionary')
+    outputData = { 'options' : transedFullData}
     outputData = json.dumps(outputData)
-    with open('jsonOutExtended.txt.', 'w') as outfile:
+    with open('jsonOutExtended.txt', 'w') as outfile:
         outfile.write(str(outputData))
         
