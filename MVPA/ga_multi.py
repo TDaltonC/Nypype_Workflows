@@ -20,7 +20,7 @@ os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
 
 # Define the location of the csv file with modeled preferences, should make relative
 # Three col CSV (Item-Code, Option-Type, Value)
-csv_filepath='options.csv'
+csv_filepath='rank000.csv'
 
 
 #%% Magic Numbers
@@ -155,29 +155,27 @@ def inputErrorCheck(raw_data):
 #%%==============import data from csv======================%%#
 raw_choice_dataset = pd.read_csv(csv_filepath, sep=',', header=0)
 
-raw_choice_dataset=raw_choice_dataset[raw_choice_dataset['SID']==SID]
-
 valueDictionary={}
 for x in range(1,4):
   #Create a dictionary/hashtable associating the unique ID assigned to each singleton or bundle to its modeled value
     placeholderValueDictionary={}
     for rows in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==x].iterrows():
         #rows[1][6]=rows[1][2] # change this once modeling is done
-        placeholderValueDictionary[int(rows[1]['index'])] =float(rows[1]['index'])
+        placeholderValueDictionary[int(rows[1]['rank'])] =float(rows[1]['rank'])
     valueDictionary[x]=placeholderValueDictionary
     
 singletonLookup={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==1].iterrows():
-    singletonLookup[int(x[1]['index'])]=int(x[1]['item1'])
+    singletonLookup[int(x[1]['rank'])]=int(x[1]['item1'])
 
 bundleLookup={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==2].iterrows():
  #create a dictionary/hastable that gives constituent item in homogeneous bundles
-    bundleLookup[int(x[1]['index'])]=int(x[1]['item1'])
+    bundleLookup[int(x[1]['rank'])]=int(x[1]['item1'])
     
 bundleLookup2={}
 for x in raw_choice_dataset[raw_choice_dataset['type'].astype(int)==3].iterrows():
-    bundleLookup2[int(x[1]['index'])]=(int(x[1]['item1']),int(x[1]['item2']))
+    bundleLookup2[int(x[1]['rank'])]=(int(x[1]['item1']),int(x[1]['item2']))
 #%%===============initialize toolbox=======================%%#
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, typecode="d", fitness=creator.FitnessMax)
@@ -282,9 +280,9 @@ if __name__ == '__main__':
     for x in outputDataFull:
         if x in singletonLookup.keys():
             transedFullData.append(singletonLookup[x])
-        if x in bundleLookup.keys():
-            transedFullData.append(bundleLookup[x])
-        if x in bundleLookup2.keys():
+        elif x in bundleLookup.keys():
+            transedFullData.append((bundleLookup[x],bundleLookup[x]))
+        elif x in bundleLookup2.keys():
             transedFullData.append(bundleLookup2[x])
         else:
             raise ValueError('Custom error: item in outputData JSON was not in any value dictionary')
