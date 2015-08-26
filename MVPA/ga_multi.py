@@ -16,7 +16,7 @@ import multiprocessing as mp
 import json
 import os
 
-os.chdir('C:\Users\Calvin\Documents\GitHub\Nypype_Workflows\MVPA')
+os.chdir('/Users/Dalton/Documents/Projects/BundledOptionsExp/OptionSelect')
 
 # Define the location of the csv file with modeled preferences, should make relative
 # Three col CSV (Item-Code, Option-Type, Value)
@@ -265,6 +265,7 @@ if __name__ == '__main__':
     
     singletonTransed = [singletonLookup[item] for item in bestIndividual[0]]
     median = singletonTransed[5]
+    medianUntransed = bestIndividual[0][5]
     singletonTransed = np.delete(singletonTransed, 5).tolist()
     homoTransed = [bundleLookup[item] for item in bestIndividual[1]]
     heteroTransed = [bundleLookup2[item] for item in bestIndividual[2]]
@@ -273,8 +274,10 @@ if __name__ == '__main__':
     outputData = json.dumps(outputData)
     with open('jsonOut.txt', 'w') as outfile:
         outfile.write(str(outputData))
-        
-    outputDataFull = np.hstack((bestIndividual[0], bestIndividual[1],bestIndividual[2]))
+
+    extended = np.unique(np.hstack((np.ravel([bundleLookup[x] for x in bestIndividual[1]]), np.ravel([bundleLookup2[x] for x in bestIndividual[2]]), bestIndividual[0])))
+    outputDataFull = np.hstack((extended, bestIndividual[1],bestIndividual[2], medianUntransed))
+    outputDataFull = np.unique(outputDataFull)
     outputDataFull = np.sort(outputDataFull)
     transedFullData = []
     for x in outputDataFull:
